@@ -1,0 +1,307 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Models\member;
+use Illuminate\Http\Request;
+use App\Traits\HttpResponses;
+use App\Http\Requests\LoginRequest;
+use App\Http\Controllers\Controller;
+// use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
+use App\Http\Requests\StoreUserRequest;
+use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Laravel\Sanctum\HasApiTokens;
+
+
+
+class MemberController extends Controller
+{
+    use HttpResponses;
+
+
+
+
+
+    public function login(LoginRequest $request){
+
+
+        $member  = member::where('email', '=', $request->email)->first();
+
+
+        if(!$member ){
+
+            return $this->error(''," Email address not found! Kindly registered as a member to login ",200);
+        }else{
+
+        if ($member && Hash::check($request['password'], $member->password)) {
+            return $this->success([
+                $member ,
+                'Member Login Sucessfully',
+                'token'=>$member->createToken('API Token of '.$member ->email)->plainTextToken
+            ]);
+        
+        }else{
+
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong',
+            ], 200);
+        }
+        }
+
+
+    }
+
+    
+    public function Addmember(StoreUserRequest $request)
+    {
+
+
+        
+        $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+        $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+      
+        
+
+        $member = validator($request->all());
+
+        $member = member::create([
+            'UserId' => $request->UserId,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'sname' => $request->sname,
+            'fname' => $request->fname,
+            'mname' => $request->mname,
+            'Gender' => $request->Gender,
+            'dob' => $request->dob,
+            'mobile' => $request->mobile,
+            'Altmobile' => $request->Altmobile,
+            'Residence' => $request->Residence,
+            'Country' => $request->Country,
+            'State' => $request->State,
+            'City' => $request->City,
+            'Title' => $request->Title,
+            'dot' => $request->dot,
+            'MStatus' => $request->MStatus,
+            'ministry' => $request->ministry,
+            'Status' => $request->Status,
+            'thumbnail' => $request->thumbnail,
+            'parishcode' => $request->parishcode,
+            'parishname'=> $parishNames,
+        ]);
+        if ($member) {
+            return $this->success([
+                $member,
+                'Member created sucessfully',
+                // 'token'=>$member->createToken('API Token of '.$member->email)->plainTextToken
+            ]);
+        } else {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong',
+            ], 200);
+        }
+
+    
+    
+    }
+
+    public function FetchAllMember()
+    {
+
+        $members = member::with('children')->get();
+
+
+     
+        
+        if ($members->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Record fetched successfully',
+                'members ' => $members,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message ' => 'No records found!',
+            ], 200);
+        }
+
+    }
+
+
+    public function GetMember($UserId)
+    {
+        $member = member::with('children')->where('UserId','=', $UserId)->get();
+
+        
+        if ($member) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Record fetched successfully',
+                'member ' => $member,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+    }
+
+    public function updateMember(Request $request, String $UserId)
+    {
+        $validator = Validator::make($request->all(), [
+            'UserId' => 'required|string|max:191',
+            'email' => 'required|email |max:191',
+            'password' => 'required|string|max:191',
+            'sname' => 'required|string|max:191',
+            'fname' => 'required|string|max:191',
+            'mname' => 'required|string|max:191',
+            'Gender' => 'required|string|max:191',
+            'dob' => 'required|string|max:191',
+            'mobile' => 'required|string|max:191',
+            'Altmobile' => 'required|string|max:191',
+            'Residence' => 'required|string|max:191',
+            'Country' => 'required|string|max:191',
+            'State' => 'required|string|max:191',
+            'City' => 'required|string|max:191',
+            'Title' => 'required|string|max:191',
+            'dot' => 'required|string|max:191',
+            'MStatus' => 'required|string|max:191',
+            'ministry' => 'required|string|max:191',
+            'Status' => 'required|string|max:191',
+            'thumbnail' => 'required|string |max:191',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'error' => $validator->messages(),
+            ], 422);
+
+        } else {
+
+            $member = member::where('UserId', '=', $UserId)->first();
+
+            if ($member) {
+                    $member->update([
+                        'UserId' => $request->UserId,
+                        'email' => $request->email,
+                        'password' => $request->password,
+                        'sname' => $request->sname,
+                        'fname' => $request->fname,
+                        'mname' => $request->mname,
+                        'Gender' => $request->Gender,
+                        'dob' => $request->dob,
+                        'mobile' => $request->mobile,
+                        'Altmobile' => $request->Altmobile,
+                        'Residence' => $request->Residence,
+                        'Country' => $request->Country,
+                        'State' => $request->State,
+                        'City' => $request->City,
+                        'Title' => $request->Title,
+                        'dot' => $request->dot,
+                        'MStatus' => $request->MStatus,
+                        'ministry' => $request->ministry,
+                        'Status' => $request->Status,
+                        'thumbnail' => $request->thumbnail,
+                    ]);
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Member information updated Sucessfully !',
+                    ],200);
+            
+            } else {
+
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Update failed as user is not found',
+                    ], 200);
+
+            }
+        }
+
+    }
+
+    public function deleteMember($UserId){
+
+        $member = member::where('UserId', '=', $UserId)->first();
+        if ($member) {
+
+            $member->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Member deleted  successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User/Member not found',
+            ], 404);
+        }
+
+
+    }
+
+
+
+//     public function login(Request $request)
+//     {
+//         // $validator = Validator::make($request->all(), [
+//         //     'email' => 'required',
+//         //     'password' => 'required',
+//         //     // 'client_secret' => 'required',
+//         // ]);
+
+//         // if ($validator->fails()) {
+//         //     Log::error($validator->errors());
+//         //     return response(["error" => "invalid_client", "error_description" => 'Validation errors.' . $validator->errors(), "message" => "input validation error"], 401);
+//         // }
+
+//         $input = $request->all();
+//         $email = $input['email'];
+//         $password = trim($input['password']);
+//         // $device = isset($input['device']) ? $input['device'] : '';
+//         // if (trim($input['client_secret']) != "YHo2CbtOTIS59oBYlx33uHBcJUiwok1h4XxGHYau") {
+//         //     return response(["error" => "invalid_client", "error_description" => 'Invalid client secret', "message" => "Invalid client secret"], 401);
+//         // }
+//         $login = self::loginservice($email, $password);
+//         if (!$login[0]) {
+//             return response()->json(['status' => false, 'message' => $login[1], 'data' => null], 401);
+//         }
+// // return response()->json(['status' => true, 'message' => "login successful", 'data' => ["token_type" => "Bearer", "expires_in" => $login[1]->token->expires_at, "access_token" => $login[1]->accessToken]], 200);
+// // return response()->json(['status' => true, 'message' => "login successful", 'data' => ["token_type" => "Bearer", "expires_in" => $login[1]->token->expires_at, "access_token" => $login[1]->accessToken]], 200);
+// return $login;
+// }
+
+
+
+
+// public static function loginservice($username, $password)
+//     {
+//         $member = member::where('email', $username)->first();
+//         if (empty($member) || is_null($member)) {
+//             return [false, 'Account not found.', 'account_not_found'];
+//         }
+
+      
+//         // if (!Hash::check($password, $member->password)) {
+       
+//         if (($password!=$member->password)) {
+//             return [false, 'incorrect login credential.', 'incorrect_login_details'];
+//         }
+
+
+//         $tokenResult = $member->createToken('Personal Access Token');
+//         return [true, $tokenResult];
+//     }
+
+}
