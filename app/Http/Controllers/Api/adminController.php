@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\area;
+use App\Models\event;
+use App\Models\state;
+use App\Models\title;
+use App\Models\parish;
 use App\Models\circuit;
 use App\Models\district;
 use App\Models\national;
-use App\Models\parish;
 use App\Models\province;
-use App\Models\state;
-use App\Models\title;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\ResponseTrait\original;
+
 
 class adminController extends Controller
 {
@@ -160,10 +163,11 @@ class adminController extends Controller
     {
         // Fetch all national records and eager load their associated state records
         $nationals = National::with('state.area.province.circuit.district.parish', 'area.province.circuit.district.parish', 'province.circuit.district.parish', 'circuit.district.parish', 'district.parish', 'parish')->get();
+
         if ($nationals->count() > 0) {
             return response()->json([
-                'status' => 200,
-                'message' => 'Record fetched successfully',
+                // 'status' => 200,
+                // 'message' => 'Record fetched successfully',
                 'nationalsParish ' => $nationals,
             ], 200);
         } else {
@@ -179,8 +183,7 @@ class adminController extends Controller
     {
 // Fetch one national records and eager load their associated state records
         $nationals = National::with('state.area.province.circuit.district.parish', 'area.province.circuit.district.parish', 'province.circuit.district.parish', 'circuit.district.parish', 'district.parish', 'parish')->where('code', $nationalcode)->get();
-// $nationals = National::with('state.area.province.circuit.district.parish','state.area.province.circuit.district.parish', 'area.province.circuit.district.parish','province','circuit','district','parish')->where('code',$nationalcode)->get();
-// $nationals = National::with('state', 'area','province','circuit','district','parish')->where('code',$nationalcode)->get();
+
         if ($nationals->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -234,7 +237,7 @@ class adminController extends Controller
                 'phone1' => $request->phone1,
                 'phone2' => $request->phone2,
                 'country' => $request->country,
-                'state' => $request->state,
+                'states' => $request->state,
                 'city' => $request->city,
                 'address' => $request->address,
                 'nationalname' => $request->nationalname,
@@ -284,7 +287,7 @@ class adminController extends Controller
                     'phone1' => $request->phone1,
                     'phone2' => $request->phone2,
                     'country' => $request->country,
-                    'state' => $request->state,
+                    'states' => $request->state,
                     'city' => $request->city,
                     'address' => $request->address,
                     'nationalname' => $request->nationalname,
@@ -1384,12 +1387,11 @@ class adminController extends Controller
         // $parish = parish::with('district.circuit.province.area.state.national','circuit.province.area.state.national','province.area.state.national','area.state.national','state.national','national')->get();
 
         $parish = parish::with('district','circuit','province','area','state','national')->get();
-
-
+//remove null from the array of event
         $filteredParish = $parish->filter(function ($item) {
             return !is_null($item);
         });
-        
+
 
         if ($parish->count() > 0) {
             return response()->json([
@@ -1408,59 +1410,6 @@ class adminController extends Controller
 
     public function GetAParish($picode)
     {
-
-        // $parish = parish::where('picode', $picode)
-        //     ->leftJoin('district', 'parish.reportingcode', '=', 'district.dcode')
-
-        //     ->leftJoin('circuit', function ($joincircuit) {
-        //         $joincircuit->on('district.reportingcode', '=', 'circuit.cicode')
-        //             ->orOn('parish.reportingcode', '=', 'circuit.cicode');
-        //     })
-        //     ->leftJoin('province', function ($joinprovince) {
-        //         $joinprovince->on('circuit.reportingcode', '=', 'province.pcode')
-        //             ->orOn('district.reportingcode', '=', 'province.pcode')
-        //             ->orOn('parish.reportingcode', '=', 'province.pcode');
-        //     })
-        //     ->leftJoin('area', function ($joinArea) {
-        //         $joinArea->on('province.reportingcode', '=', 'area.acode')
-        //             ->orOn('circuit.reportingcode', '=', 'area.acode')
-        //             ->orOn('district.reportingcode', '=', 'area.acode')
-        //             ->orOn('parish.reportingcode', '=', 'area.acode');
-
-        //     })
-        //     ->leftJoin('state', function ($joinState) {
-        //         $joinState->on('area.reportingcode', '=', 'state.scode')
-        //             ->orOn('province.reportingcode', '=', 'state.scode')
-        //             ->orOn('circuit.reportingcode', '=', 'state.scode')
-        //             ->orOn('district.reportingcode', '=', 'state.scode')
-        //             ->orOn('parish.reportingcode', '=', 'state.scode');
-
-        //     })
-        //     ->leftJoin('national', function ($join) {
-        //         $join->on('state.nationalcode', '=', 'national.code')
-        //             ->orOn('area.reportingcode', '=', 'national.code')
-        //             ->orOn('province.reportingcode', '=', 'national.code')
-        //             ->orOn('circuit.reportingcode', '=', 'national.code')
-        //             ->orOn('district.reportingcode', '=', 'national.code')
-        //             ->orOn('parish.reportingcode', '=', 'national.code');
-        //     })
-
-        //     ->select(
-        //         'parish.*',
-        //         'district.districtname',
-        //         'district.dcode as districtcode',
-        //         'circuit.circuitname',
-        //         'circuit.cicode as circuitcode',
-        //         'province.provincename',
-        //         'province.pcode as provincecode',
-        //         'area.areaname',
-        //         'area.acode as areacode',
-        //         'state.statename',
-        //         'state.scode as statecode',
-        //         'national.nationalname as nationalname',
-        //         'national.code as nationalcode'
-        //     )
-        //     ->first();
         $parish = parish::with('district.circuit.province.area.state.national','circuit.province.area.state.national','province.area.state.national','area.state.national','state.national','national')->where('picode', '=', $picode)->get();
 
         if ($parish) {
@@ -1555,17 +1504,11 @@ class adminController extends Controller
     }
 
 
-
-
-
-
-
-
 public static function FetchAllParishes($parishcode = null)
 {
 
     //Get All parishes
-    $national =national::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'nationalname as parishname', 'code as parishcode');
+    $national =national::select('email', 'phone1', 'phone2', 'country', 'states', 'city', 'address', 'nationalname as parishname', 'code as parishcode');
     $state =state::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'statename as parishname', 'scode as parishcode');
     $area =area::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'areaname as parishname', 'acode as parishcode');
     $province =province::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'provincename as parishname', 'pcode as parishcode');
@@ -1575,7 +1518,7 @@ public static function FetchAllParishes($parishcode = null)
 
     ///To get a single parish
     if ($parishcode !== null) {
-        $national =national::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'nationalname as parishname', 'code as parishcode')->where('code', $parishcode);
+        $national =national::select('email', 'phone1', 'phone2', 'country', 'states', 'city', 'address', 'nationalname as parishname', 'code as parishcode')->where('code', $parishcode);
         $state =state::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'statename as parishname', 'scode as parishcode')->orWhere('scode', $parishcode);
         $area =area::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'areaname as parishname', 'acode as parishcode')->orWhere('acode', $parishcode);
         $province =province::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'provincename as parishname', 'pcode as parishcode')->orWhere('pcode', $parishcode);
@@ -1601,6 +1544,202 @@ public static function FetchAllParishes($parishcode = null)
         'Allparish' => $result->toArray(),
     ], 200);
 }
+
+
+public function AddNewEvent(Request $request){
+
+    $validator = Validator::make($request->all(), [
+        //validator used in input data(Add New Parish)-copy and paste
+        'Title'=>'required|string|max:191',
+        'Description'=>'required|string|max:191',
+        'startdate'=>'required|string|max:191',
+        'enddate'=>'required|string|max:191',
+        'Time'=>'required|string|max:191',
+        'Moderator'=>'required|string|max:191',
+        'Minister'=>'required|string|max:191',
+        'Type'=>'required|string|max:191',
+        'parishcode'=>'required|string|max:191'
+        // we dont have to add picode bc we will generate it ourselve
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 422,
+            'error' => $validator->messages(),
+        ], 422);
+
+    } else {
+
+
+        $date = strtoupper(substr($request->startdate, 0, -3));
+
+
+
+        $event = event::where('parishcode', 'LIKE', '%' . $request->eventcode .'%')
+        ->where('startdate', 'LIKE', '%' . $date .'%')
+        ->count();
+
+        if ($event == 0) {
+            $event = 1;
+            $num_padded = sprintf("%02d", $event);
+        } elseif ($event < 10) {
+            $event = $event + 1;
+            $num_padded = sprintf("%02d", $event);
+
+        } else {
+            $num_padded = $event + 1;
+        }
+
+
+        $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+        $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+        $event = event::create([
+        'EventId'=> $request->parishcode.$num_padded,
+        'Title'=>$request->Title,
+        'Description'=>$request->Description,
+        'startdate'=>$request->startdate,
+        'enddate'=>$request->enddate,
+        'Time'=>$request->Time,
+        'Moderator'=>$request->Moderator,
+        'Minister'=>$request->Minister,
+        'Type'=>$request->Type,
+        'parishcode'=>$request->parishcode,
+        'parishname'=> $parishNames,
+
+
+        ]);
+
+        if ($event) {
+            return response()->json([
+                'status' => 200,
+                'message' => $request->parishcode.'-'.$num_padded . ' event created sucessfully',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong ' . $request->parishcode.'-'.$num_padded . ' event not created',
+            ], 200);
+        }
+
+    }
+}
+
+public function FetchAllEvent()
+{
+    $allevent = event::all();
+    if ($allevent->count() > 0) {
+        return response()->json([
+            'status' => 200,
+            'message' => 'Record fetched successfully',
+            'events ' => $allevent,
+        ], 200);
+    } else {
+        return response()->json([
+            'status' => 404,
+            'message ' => 'No event records found!',
+        ], 200);
+    }
+
+}
+
+public function GetAnEvent($EventId)
+    {
+         $event = event::where('EventId', '=', $EventId)->first();
+        if ($event) {
+            return response()->json([
+                'status' => 200,
+                'message' => $EventId.' Record fetched successfully',
+                'event ' => $event,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+    }
+
+    public function UpdateEvent(Request $request, Int $id)
+    {
+   $validator = Validator::make($request->all(), [
+        //validator used in input data(Add New Event)-copy and paste
+        'Title'=>'required|string|max:191',
+        'Description'=>'required|string|max:191',
+        'startdate'=>'required|string|max:191',
+        'enddate'=>'required|string|max:191',
+        'Time'=>'required|string|max:191',
+        'Moderator'=>'required|string|max:191',
+        'Minister'=>'required|string|max:191',
+        'Type'=>'required|string|max:191',
+        'parishcode'=>'required|string|max:191'
+        // we dont have to add EventId bc we will generate it ourselve
+    ]);
+
+     if ($validator->fails()) {
+      return response()->json([
+       'status' => 422,
+       'error'  => $validator->messages(),
+      ], 422);
+
+     } else {
+
+        $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+        $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+      $event = event::where('id', '=', $id)->first();
+
+      if ($event) {
+       $event->update([
+        'event'=>$request->event,
+        'Description'=>$request->Description,
+        'startdate'=>$request->startdate,
+        'enddate'=>$request->enddate,
+        'Time'=>$request->Time,
+        'Moderator'=>$request->Moderator,
+        'Minister'=>$request->Minister,
+        'Type'=>$request->Type,
+        'parishcode'=>$request->parishcode,
+        'parishname'=> $parishNames,
+       ]);
+       return response()->json([
+        'status'  => 200,
+        'message' =>$request->event. ' Title information updated Sucessfully !',
+       ], 200);
+
+      } else {
+
+       return response()->json([
+        'status'  => 500,
+        'message' => 'Update failed as titlt is not found',
+       ], 200);
+
+      }
+     }
+
+    }
+
+    public function DeleteEvent($EventId){
+
+        $event = event::where('EventId', '=', $EventId)->first();
+        if ($event) {
+
+            $event->delete();
+            return response()->json([
+                'status' => 200,
+                'message' =>' event deleted  successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User/event not found',
+            ], 404);
+        }
+
+
+    }
+
 
 
 }
