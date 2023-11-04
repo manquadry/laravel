@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone1');
             $table->string('phone2')->nullable();
             $table->string('country');
-            $table->string('state');
+            $table->string('states');
             $table->string('city');
             $table->string('address');
             $table->string('nationalname');
