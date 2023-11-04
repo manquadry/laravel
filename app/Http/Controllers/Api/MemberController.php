@@ -44,7 +44,7 @@ class MemberController extends Controller
                 'Member Login Sucessfully',
                 'token'=>$member->createToken('API Token of '.$member ->email)->plainTextToken
             ]);
-        
+
         }else{
 
             return response()->json([
@@ -57,24 +57,24 @@ class MemberController extends Controller
 
     }
 
-    
+
     public function Addmember(StoreUserRequest $request)
     {
 
 
-        
+
         $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
         $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
 
         $member = validator($request->all());
 
-       
+
 
         $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
 
         $userAgent = $request->header('User-Agent');
 
-     
+
 
 
         if ($ParismemberCount == 0) {
@@ -87,20 +87,20 @@ class MemberController extends Controller
             $num_padded = $ParismemberCount + 1;
         }
 
-       
+
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
-            $file = $request->file('thumbnail');
-            $Thumbnail = $request->parishcode.$num_padded.'.'. $file->getClientOriginalExtension();
-            $thumbnailPath = $file->storeAs('thumbnails', $Thumbnail, 'public');
+
+            $fileUploaded = $request->file('thumbnail');
+            $memberNewPic = $request->parishcode.$num_padded.'.'. $fileUploaded->getClientOriginalExtension();
+            $thumbnailPath = $fileUploaded->storeAs('thumbnails', $memberNewPic, 'public');
         } else {
             $thumbnailPath = ""; // Or provide a default image path
         }
 
-      
+
 
         $member = member::create([
-            'UserId' => $request->parishcode. $num_padded,
+            'UserId' => $request->parishcode.$num_padded,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'sname' => $request->sname,
@@ -119,7 +119,7 @@ class MemberController extends Controller
             'MStatus' => $request->MStatus,
             'ministry' => $request->ministry,
             'Status' => $request->Status,
-            'thumbnail' => $Thumbnail,
+            'thumbnail' => $memberNewPic,
             'parishcode' => $request->parishcode,
             'parishname'=> $parishNames,
         ]);
@@ -138,8 +138,8 @@ class MemberController extends Controller
             ], 200);
         }
 
-    
-    
+
+
     }
 
     public function FetchAllMember()
@@ -148,8 +148,8 @@ class MemberController extends Controller
         $members = member::with('children')->get();
 
 
-     
-        
+
+
         if ($members->count() > 0) {
             return response()->json([
                 'status' => 200,
@@ -170,7 +170,7 @@ class MemberController extends Controller
     {
         $member = member::with('children')->where('UserId','=', $UserId)->get();
 
-        
+
         if ($member) {
             return response()->json([
                 'status' => 200,
@@ -229,13 +229,13 @@ class MemberController extends Controller
             } else {
                 $thumbnailPath = null; // Or provide a default image path
             }
-    
-          
+
+
 
 
             $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
             $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
-    
+
             $member = validator($request->all());
 
             $member = member::where('UserId', '=', $UserId)->first();
@@ -270,7 +270,7 @@ class MemberController extends Controller
                         'message' => 'Member information updated Sucessfully !',
                         'member'=> $member,
                     ],200);
-            
+
             } else {
 
                     return response()->json([
@@ -344,9 +344,9 @@ class MemberController extends Controller
 //             return [false, 'Account not found.', 'account_not_found'];
 //         }
 
-      
+
 //         // if (!Hash::check($password, $member->password)) {
-       
+
 //         if (($password!=$member->password)) {
 //             return [false, 'incorrect login credential.', 'incorrect_login_details'];
 //         }
