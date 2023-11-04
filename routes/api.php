@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\childrenController;
 */
 
 // Route::middleware('auth:sanctum')->get('/user', function () {
-    
+
 // });
 
 
@@ -26,7 +26,7 @@ use App\Http\Controllers\Api\childrenController;
 Route::post('/login',[MemberController::class,'login']);
 Route::post('/logout',[MemberController::class,'logout']);
 
- 
+
 
 //member API
 Route::get('/Allmember',[MemberController::class,'FetchAllMember']);
@@ -70,10 +70,10 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::get('/member/{userid}',[MemberController::class,'GetMember']);
     Route::put('/member/{userid}/update',[MemberController::class,'updateMember']);
     Route::delete('/member/{userid}/delete',[MemberController::class,'deleteMember']);
+    Route::get('Allmember',[MemberController::class,'FetchAllMember']);
     });
 
 
-    Route::get('Allmember',[MemberController::class,'FetchAllMember']);
     Route::post('Addmember',[MemberController::class,'Addmember']);
 // Route::get('member/{userid}',[MemberController::class,'GetMember']);
 // Route::put('member/{userid}/update',[MemberController::class,'updateMember']);
@@ -150,6 +150,15 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     //get all parishes or one parish
     Route::get('getAllParishes',[adminController::class,'FetchAllParishes']);
     Route::get('getAParish/{parishcode}',[adminController::class,'FetchAllParishes']);
+
+    // EVENT END POINT
+    Route::post('AddEvent',[adminController::class,'AddNewEvent']);
+    Route::get('AllEvent',[adminController::class,'FetchAllEvent']);
+    Route::get('Event/{EventId}',[adminController::class,'GetAnEvent']);
+    Route::put('UpdateEvent/{EventId}/update',[adminController::class,'UpdateEvent']);
+    Route::delete('DeleteEvent/{EventId}/delete',[adminController::class,'DeleteEvent']);
+
+
 
 
 
