@@ -66,13 +66,41 @@ class MemberController extends Controller
         $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
         $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
 
-      
-        
-
         $member = validator($request->all());
 
+       
+
+        $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
+
+        $userAgent = $request->header('User-Agent');
+
+     
+
+
+        if ($ParismemberCount == 0) {
+            $ParismemberCount = 1;
+            $num_padded = sprintf("%02d", $ParismemberCount);
+        } elseif ($ParismemberCount < 10) {
+            $ParismemberCount = $ParismemberCount + 1;
+            $num_padded = sprintf("%02d", $ParismemberCount);
+        } else {
+            $num_padded = $ParismemberCount + 1;
+        }
+
+       
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            $Thumbnail = $request->parishcode.$num_padded.'.'. $file->getClientOriginalExtension();
+            $thumbnailPath = $file->storeAs('thumbnails', $Thumbnail, 'public');
+        } else {
+            $thumbnailPath = ""; // Or provide a default image path
+        }
+
+      
+
         $member = member::create([
-            'UserId' => $request->UserId,
+            'UserId' => $request->parishcode. $num_padded,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'sname' => $request->sname,
@@ -91,10 +119,12 @@ class MemberController extends Controller
             'MStatus' => $request->MStatus,
             'ministry' => $request->ministry,
             'Status' => $request->Status,
-            'thumbnail' => $request->thumbnail,
+            'thumbnail' => $Thumbnail,
             'parishcode' => $request->parishcode,
             'parishname'=> $parishNames,
         ]);
+
+
         if ($member) {
             return $this->success([
                 $member,
@@ -156,46 +186,65 @@ class MemberController extends Controller
 
     }
 
-    public function updateMember(Request $request, String $UserId)
+    public function updateMember(StoreUserRequest $request, String $UserId)
     {
-        $validator = Validator::make($request->all(), [
-            'UserId' => 'required|string|max:191',
-            'email' => 'required|email |max:191',
-            'password' => 'required|string|max:191',
-            'sname' => 'required|string|max:191',
-            'fname' => 'required|string|max:191',
-            'mname' => 'required|string|max:191',
-            'Gender' => 'required|string|max:191',
-            'dob' => 'required|string|max:191',
-            'mobile' => 'required|string|max:191',
-            'Altmobile' => 'required|string|max:191',
-            'Residence' => 'required|string|max:191',
-            'Country' => 'required|string|max:191',
-            'State' => 'required|string|max:191',
-            'City' => 'required|string|max:191',
-            'Title' => 'required|string|max:191',
-            'dot' => 'required|string|max:191',
-            'MStatus' => 'required|string|max:191',
-            'ministry' => 'required|string|max:191',
-            'Status' => 'required|string|max:191',
-            'thumbnail' => 'required|string |max:191',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'UserId' => 'required|string|max:191',
+        //     'email' => 'required|email |max:191',
+        //     'password' => 'required|string|max:191',
+        //     'sname' => 'required|string|max:191',
+        //     'fname' => 'required|string|max:191',
+        //     'mname' => 'required|string|max:191',
+        //     'Gender' => 'required|string|max:191',
+        //     'dob' => 'required|string|max:191',
+        //     'mobile' => 'required|string|max:191',
+        //     'Altmobile' => 'required|string|max:191',
+        //     'Residence' => 'required|string|max:191',
+        //     'Country' => 'required|string|max:191',
+        //     'State' => 'required|string|max:191',
+        //     'City' => 'required|string|max:191',
+        //     'Title' => 'required|string|max:191',
+        //     'dot' => 'required|string|max:191',
+        //     'MStatus' => 'required|string|max:191',
+        //     'ministry' => 'required|string|max:191',
+        //     'Status' => 'required|string|max:191',
+        //     'thumbnail' => 'required|string |max:191',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'error' => $validator->messages(),
-            ], 422);
 
-        } else {
+
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => 422,
+        //         'error' => $validator->messages(),
+        //     ], 422);
+
+        // } else {
+
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+                $file = $request->file('thumbnail');
+                $Thumbnail = $request->$request->parishcode.'.'. $file->getClientOriginalExtension();
+                $thumbnailPath = $file->storeAs('thumbnails', $Thumbnail, 'public');
+            } else {
+                $thumbnailPath = null; // Or provide a default image path
+            }
+    
+          
+
+
+            $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+            $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+    
+            $member = validator($request->all());
 
             $member = member::where('UserId', '=', $UserId)->first();
 
             if ($member) {
                     $member->update([
-                        'UserId' => $request->UserId,
+                        // 'UserId' => $request->UserId,
                         'email' => $request->email,
-                        'password' => $request->password,
+                        // 'password' => $request->password,
                         'sname' => $request->sname,
                         'fname' => $request->fname,
                         'mname' => $request->mname,
@@ -212,11 +261,14 @@ class MemberController extends Controller
                         'MStatus' => $request->MStatus,
                         'ministry' => $request->ministry,
                         'Status' => $request->Status,
-                        'thumbnail' => $request->thumbnail,
+                        'thumbnail' => $thumbnailPath,
+                        'parishcode' => $request->parishcode,
+                        'parishname'=> $parishNames,
                     ]);
                     return response()->json([
                         'status' => 200,
                         'message' => 'Member information updated Sucessfully !',
+                        'member'=> $member,
                     ],200);
             
             } else {
@@ -227,7 +279,7 @@ class MemberController extends Controller
                     ], 200);
 
             }
-        }
+        // }
 
     }
 
@@ -303,5 +355,19 @@ class MemberController extends Controller
 //         $tokenResult = $member->createToken('Personal Access Token');
 //         return [true, $tokenResult];
 //     }
+
+
+
+
+
+
+    // public function logout()
+    // {
+    //     Auth::user()->currentAccessToken()->delete();
+
+    //     return $this->success([
+    //         'message' => 'You have succesfully been logged out and your token has been removed'
+    //     ]);
+    // }
 
 }
