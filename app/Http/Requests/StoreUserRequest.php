@@ -46,7 +46,8 @@ class StoreUserRequest extends FormRequest
             'MStatus' => 'required|string|max:191',
             'ministry' => 'required|string|max:191',
             'Status' => 'required|string|max:191',
-            'thumbnail' => 'required|string |max:191',
+            // 'thumbnail' => 'required|string |max:191',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 }
