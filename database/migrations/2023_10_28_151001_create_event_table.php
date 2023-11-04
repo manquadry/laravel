@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('Type');
             $table->string('parishcode');
             $table->string('parishname');
+            $table->string('eventImg');
+
             $table->timestamps();
         });
     }

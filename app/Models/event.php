@@ -24,11 +24,12 @@ class event extends Model
         'Type',
         'parishcode',
         'parishname',
+        'eventImg',
        ];
 
 
 
-   
+
 
 
 

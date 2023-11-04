@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\ResponseTrait\original;
+use Illuminate\Http\JsonResponse;
 
 
 class adminController extends Controller
@@ -1558,7 +1559,8 @@ public function AddNewEvent(Request $request){
         'Moderator'=>'required|string|max:191',
         'Minister'=>'required|string|max:191',
         'Type'=>'required|string|max:191',
-        'parishcode'=>'required|string|max:191'
+        'parishcode'=>'required|string|max:191',
+        'eventImg' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         // we dont have to add picode bc we will generate it ourselve
     ]);
 
@@ -1572,6 +1574,8 @@ public function AddNewEvent(Request $request){
 
 
         $date = strtoupper(substr($request->startdate, 0, -3));
+        $dateParts = explode('-', $request->startdate); // Use '-' for date format "YYYY-MM-DD"
+        $yr = $dateParts[0];
 
 
 
@@ -1588,11 +1592,31 @@ public function AddNewEvent(Request $request){
 
         } else {
             $num_padded = $event + 1;
+
         }
 
 
         $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+        if( !$fetchparish){
+
+            return response()->json([
+                'status' => 500,
+                'message' => 'Parish does not exist',
+            ], 200);
+
+
+        }
+
         $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+        if ($request->hasFile('eventImg')) {
+
+            $fileUploaded = $request->file('eventImg');
+            $eventNewPic = $request->parishcode.$yr.$num_padded.'.'. $fileUploaded->getClientOriginalExtension();
+            $eventImgPath = $fileUploaded->storeAs('eventImgs', $eventNewPic, 'public');
+        } else {
+            $eventImgPath = ""; // Or provide a default image path
+        }
 
         $event = event::create([
         'EventId'=> $request->parishcode.$num_padded,
@@ -1606,19 +1630,19 @@ public function AddNewEvent(Request $request){
         'Type'=>$request->Type,
         'parishcode'=>$request->parishcode,
         'parishname'=> $parishNames,
-
+        'eventImg'=> $eventNewPic,
 
         ]);
 
         if ($event) {
             return response()->json([
                 'status' => 200,
-                'message' => $request->parishcode.'-'.$num_padded . ' event created sucessfully',
+                'message' => $request->parishcode.$yr.'-'.$num_padded . ' event created sucessfully',
             ], 200);
         } else {
             return response()->json([
                 'status' => 500,
-                'message' => 'Something went wrong ' . $request->parishcode.'-'.$num_padded . ' event not created',
+                'message' => 'Something went wrong ' . $request->parishcode.$yr.'-'.$num_padded . ' event not created',
             ], 200);
         }
 
@@ -1661,7 +1685,7 @@ public function GetAnEvent($EventId)
 
     }
 
-    public function UpdateEvent(Request $request, Int $id)
+    public function UpdateEvent(Request $request, String $EventId)
     {
    $validator = Validator::make($request->all(), [
         //validator used in input data(Add New Event)-copy and paste
@@ -1673,7 +1697,8 @@ public function GetAnEvent($EventId)
         'Moderator'=>'required|string|max:191',
         'Minister'=>'required|string|max:191',
         'Type'=>'required|string|max:191',
-        'parishcode'=>'required|string|max:191'
+        'parishcode'=>'required|string|max:191',
+        'eventImg' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         // we dont have to add EventId bc we will generate it ourselve
     ]);
 
@@ -1685,10 +1710,29 @@ public function GetAnEvent($EventId)
 
      } else {
 
+        if ($request->hasFile('eventImg')) {
+            $eventImgPath = $request->file('eventImg')->store('eventImgs', 'public');
+            $file = $request->file('eventImg');
+            $eventImg = $request->$request->eventNewPic.'.'. $file->getClientOriginalExtension();
+            $eventImgPath = $file->storeAs('eventImgs', $eventImg, 'public');
+        } else {
+            $eventImgPath = null; // Or provide a default image path
+        }
         $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+        if( !$fetchparish){
+
+            return response()->json([
+                'status' => 500,
+                'message' => 'Parish does not exist',
+            ], 200);
+
+
+        }
         $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
 
-      $event = event::where('id', '=', $id)->first();
+      $event = event::where('EventId', '=', $EventId)->first();
+
+
 
       if ($event) {
        $event->update([
@@ -1702,6 +1746,8 @@ public function GetAnEvent($EventId)
         'Type'=>$request->Type,
         'parishcode'=>$request->parishcode,
         'parishname'=> $parishNames,
+        'thumbnail' => $eventImgPath,
+
        ]);
        return response()->json([
         'status'  => 200,
