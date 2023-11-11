@@ -68,7 +68,7 @@ Route::post('/Addmember',[MemberController::class,'Addmember']);
 Route::group(['middleware' => ['auth:sanctum']],function(){
 
     Route::get('/member/{userid}',[MemberController::class,'GetMember']);
-    Route::put('/member/{userid}/update',[MemberController::class,'updateMember']);
+    Route::post('/member/{userid}/update',[MemberController::class,'updateMember']);
     Route::delete('/member/{userid}/delete',[MemberController::class,'deleteMember']);
     Route::get('Allmember',[MemberController::class,'FetchAllMember']);
     });
@@ -155,7 +155,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('AddEvent',[adminController::class,'AddNewEvent']);
     Route::get('AllEvent',[adminController::class,'FetchAllEvent']);
     Route::get('Event/{EventId}',[adminController::class,'GetAnEvent']);
-    Route::put('UpdateEvent/{EventId}/update',[adminController::class,'UpdateEvent']);
+    Route::post('updateEvent/{EventId}/update',[adminController::class,'updateEvent']);
     Route::delete('DeleteEvent/{EventId}/delete',[adminController::class,'DeleteEvent']);
 
 
