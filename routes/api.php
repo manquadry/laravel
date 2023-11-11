@@ -75,7 +75,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
 
     Route::post('Addmember',[MemberController::class,'Addmember']);
-// Route::get('member/{userid}',[MemberController::class,'GetMember']);
+    Route::post('AddNewTithe',[MemberController::class,'AddNewTithe']);
 // Route::put('member/{userid}/update',[MemberController::class,'updateMember']);
 // Route::delete('member/{userid}/delete',[MemberController::class,'deleteMember']);
 
