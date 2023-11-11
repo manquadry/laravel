@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\tithe;
 use App\Models\member;
 use Illuminate\Http\Request;
 use App\Traits\HttpResponses;
-use App\Http\Requests\LoginRequest;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 // use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\HasApiTokens;
+use App\Http\Requests\LoginRequest;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
 use App\Http\Requests\StoreUserRequest;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\ResponseTrait\original;
 
 
@@ -289,7 +290,6 @@ class MemberController extends Controller
         }
 
     }
-
     public function deleteMember($UserId){
 
         $member = member::where('UserId', '=', $UserId)->first();
@@ -308,6 +308,83 @@ class MemberController extends Controller
         }
 
 
+    }
+
+    public function AddNewTithe(Request $request)
+    {
+     $validator = Validator::make($request->all(), [
+      //validator used in input data(Add New Parish)-copy and paste
+      'UserId'       => 'required|string|max:191',
+      'pymtdate' => 'required|string|max:191',
+      'Amount'   => 'required|string|max:191',
+      'pymtImg'    => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+      // we dont have to add picode bc we will generate it ourselve
+     ]);
+
+       if ($validator->fails()) {
+      return response()->json([
+       'status' => 422,
+       'error'  => $validator->messages(),
+      ], 422);
+
+     } else {
+
+         $member = member::where('UserId',$request->UserId)->get();
+
+      if ($request->hasFile('pymtImg')) {
+
+       $fileUploaded = $request->file('pymtImg');
+       $paymentImg  = $request->pymtdate.''. $request->UserId . '.' . $fileUploaded->getClientOriginalExtension();
+       $pymtImgPath = $fileUploaded->storeAs('pymtImgs', $paymentImg, 'public');
+      } else {
+       $pymtImgPath = ""; // Or provide a default image path
+      }
+        if(!$member){
+            return response()->json([
+                'status' => 500,
+                'message' => 'Member does not exist',
+            ], 200);
+        }else{
+
+        $Surname=$member[0]['sname'];
+        $FirstName=$member[0]['fname'];
+        $MiddleName=$member[0]['mname'];
+        $pariscode=$member[0]['parishcode'];
+        $parisname=$member[0]['parishname'];
+
+
+            $tithe = tithe::create([
+            'UserId'       => $request->UserId,
+            'FullName'     =>$Surname.' '.$FirstName.' '.$MiddleName,
+            'pymtdate' => $request->pymtdate,
+            'Amount'   => $request->Amount,
+            'parishcode'     =>$pariscode,
+            'parishname'        =>$parisname,
+            'pymtImg'   => $pymtImgPath,
+            ]);
+
+
+
+        }
+
+        if ($tithe) {
+
+        return response()->json([
+            'status'  => 200,
+            'message' => ' Tithe paid sucessfully',
+            'tithe'=> $tithe,
+        ], 200);
+        } else {
+
+        return response()->json([
+            'status'  => 500,
+            'message' => 'Something went wrong '  . ' tithe not created',
+        ], 200);
+        }
+
+
+
+    }
     }
 
 
