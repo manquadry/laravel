@@ -16,6 +16,9 @@ use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\ResponseTrait\original;
+
 
 
 
@@ -64,12 +67,19 @@ class MemberController extends Controller
 
 
         $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+
+        if( !$fetchparish){
+
+            return response()->json([
+                'status' => 500,
+                'message' => 'Parish does not exist',
+            ], 200);
+
+
+        }
+
         $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
-
         $member = validator($request->all());
-
-
-
         $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
 
         $userAgent = $request->header('User-Agent');
@@ -100,7 +110,7 @@ class MemberController extends Controller
 
 
         $member = member::create([
-            'UserId' => $request->parishcode.$num_padded,
+            'UserId' => $request->parishcode. $num_padded,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'sname' => $request->sname,
@@ -186,52 +196,49 @@ class MemberController extends Controller
 
     }
 
-    public function updateMember(StoreUserRequest $request, String $UserId)
+    public function updateMember(Request $request, String $UserId)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'UserId' => 'required|string|max:191',
-        //     'email' => 'required|email |max:191',
-        //     'password' => 'required|string|max:191',
-        //     'sname' => 'required|string|max:191',
-        //     'fname' => 'required|string|max:191',
-        //     'mname' => 'required|string|max:191',
-        //     'Gender' => 'required|string|max:191',
-        //     'dob' => 'required|string|max:191',
-        //     'mobile' => 'required|string|max:191',
-        //     'Altmobile' => 'required|string|max:191',
-        //     'Residence' => 'required|string|max:191',
-        //     'Country' => 'required|string|max:191',
-        //     'State' => 'required|string|max:191',
-        //     'City' => 'required|string|max:191',
-        //     'Title' => 'required|string|max:191',
-        //     'dot' => 'required|string|max:191',
-        //     'MStatus' => 'required|string|max:191',
-        //     'ministry' => 'required|string|max:191',
-        //     'Status' => 'required|string|max:191',
-        //     'thumbnail' => 'required|string |max:191',
-        // ]);
 
 
 
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => 422,
-        //         'error' => $validator->messages(),
-        //     ], 422);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email |max:191',
+            'sname' => 'required|string|max:191',
+            'fname' => 'required|string|max:191',
+            'mname' => 'required|string|max:191',
+            'Gender' => 'required|string|max:191',
+            'dob' => 'required|string|max:191',
+            'mobile' => 'required|string|max:191',
+            'Altmobile' => 'required|string|max:191',
+            'Residence' => 'required|string|max:191',
+            'Country' => 'required|string|max:191',
+            'State' => 'required|string|max:191',
+            'City' => 'required|string|max:191',
+            'Title' => 'required|string|max:191',
+            'dot' => 'required|string|max:191',
+            'MStatus' => 'required|string|max:191',
+            'ministry' => 'required|string|max:191',
+            'Status' => 'required|string|max:191',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-        // } else {
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'error' => $validator->messages(),
+            ], 422);
+
+        } else {
 
             if ($request->hasFile('thumbnail')) {
-                $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
                 $file = $request->file('thumbnail');
-                $Thumbnail = $request->$request->parishcode.'.'. $file->getClientOriginalExtension();
+                $Thumbnail =  $UserId.'.'. $file->getClientOriginalExtension();
                 $thumbnailPath = $file->storeAs('thumbnails', $Thumbnail, 'public');
             } else {
                 $thumbnailPath = null; // Or provide a default image path
             }
-
-
-
 
             $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
             $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
@@ -279,7 +286,7 @@ class MemberController extends Controller
                     ], 200);
 
             }
-        // }
+        }
 
     }
 
@@ -305,56 +312,11 @@ class MemberController extends Controller
 
 
 
-//     public function login(Request $request)
-//     {
-//         // $validator = Validator::make($request->all(), [
-//         //     'email' => 'required',
-//         //     'password' => 'required',
-//         //     // 'client_secret' => 'required',
-//         // ]);
-
-//         // if ($validator->fails()) {
-//         //     Log::error($validator->errors());
-//         //     return response(["error" => "invalid_client", "error_description" => 'Validation errors.' . $validator->errors(), "message" => "input validation error"], 401);
-//         // }
-
-//         $input = $request->all();
-//         $email = $input['email'];
-//         $password = trim($input['password']);
-//         // $device = isset($input['device']) ? $input['device'] : '';
-//         // if (trim($input['client_secret']) != "YHo2CbtOTIS59oBYlx33uHBcJUiwok1h4XxGHYau") {
-//         //     return response(["error" => "invalid_client", "error_description" => 'Invalid client secret', "message" => "Invalid client secret"], 401);
-//         // }
-//         $login = self::loginservice($email, $password);
-//         if (!$login[0]) {
-//             return response()->json(['status' => false, 'message' => $login[1], 'data' => null], 401);
-//         }
-// // return response()->json(['status' => true, 'message' => "login successful", 'data' => ["token_type" => "Bearer", "expires_in" => $login[1]->token->expires_at, "access_token" => $login[1]->accessToken]], 200);
-// // return response()->json(['status' => true, 'message' => "login successful", 'data' => ["token_type" => "Bearer", "expires_in" => $login[1]->token->expires_at, "access_token" => $login[1]->accessToken]], 200);
-// return $login;
-// }
 
 
 
 
-// public static function loginservice($username, $password)
-//     {
-//         $member = member::where('email', $username)->first();
-//         if (empty($member) || is_null($member)) {
-//             return [false, 'Account not found.', 'account_not_found'];
-//         }
 
-
-//         // if (!Hash::check($password, $member->password)) {
-
-//         if (($password!=$member->password)) {
-//             return [false, 'incorrect login credential.', 'incorrect_login_details'];
-//         }
-
-
-//         $tokenResult = $member->createToken('Personal Access Token');
-//         return [true, $tokenResult];
-//     }
 
 
 
