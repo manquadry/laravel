@@ -65,17 +65,25 @@ Route::post('/Addmember',[MemberController::class,'Addmember']);
 
 
 //protected route
-Route::group(['middleware' => ['auth:sanctum']],function(){
+//Route::group(['middleware' => ['auth:sanctum']],function(){
 
     Route::get('/member/{userid}',[MemberController::class,'GetMember']);
     Route::post('/member/{userid}/update',[MemberController::class,'updateMember']);
     Route::delete('/member/{userid}/delete',[MemberController::class,'deleteMember']);
     Route::get('Allmember',[MemberController::class,'FetchAllMember']);
-    });
+   // });
 
 
     Route::post('Addmember',[MemberController::class,'Addmember']);
     Route::post('AddNewTithe',[MemberController::class,'AddNewTithe']);
+    Route::get('MTithe/{userid}',[MemberController::class,'GetATithe']);
+    Route::get('MParishTithe/{parishcode}',[MemberController::class,'GetAllParishTithe']);
+    Route::post('Tithe/{userid}/update',[MemberController::class,'UpdateTithe']);
+    Route::delete('MDelete/{userid}/delete',[MemberController::class,'DeleteTithe']);
+
+//Juveline Harvest API
+Route::post('AddNewJHarvest',[MemberController::class,'AddNewJuvelineHarvest']);
+
 // Route::put('member/{userid}/update',[MemberController::class,'updateMember']);
 // Route::delete('member/{userid}/delete',[MemberController::class,'deleteMember']);
 

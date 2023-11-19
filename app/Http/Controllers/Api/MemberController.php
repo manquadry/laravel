@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\juvelineharvest;
 use App\Models\tithe;
 use App\Models\member;
 use Illuminate\Http\Request;
@@ -312,9 +313,10 @@ class MemberController extends Controller
 
     public function AddNewTithe(Request $request)
     {
+
      $validator = Validator::make($request->all(), [
       //validator used in input data(Add New Parish)-copy and paste
-      'UserId'       => 'required|string|max:191',
+      //'UserId'       => 'required|string|max:191',
       'pymtdate' => 'required|string|max:191',
       'Amount'   => 'required|string|max:191',
       'pymtImg'    => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -382,17 +384,218 @@ class MemberController extends Controller
         ], 200);
         }
 
-
-
     }
     }
 
+    public function GetATithe($UserId)
+    {
+     $tithe = tithe::where('UserId', '=', $UserId)->first();
+     if ($tithe) {
+      return response()->json([
+       'status'  => 200,
+       'message' => $UserId . ' Record fetched successfully',
+       'tithe '  => $tithe,
+      ], 200);
+     } else {
+      return response()->json([
+       'status'  => 404,
+       'message' => 'User not found',
+      ], 404);
+     }
+
+    }
+
+    public function GetAllParishTithe($parishcode)
+    {
+     $tithe = tithe::where('parishcode', '=', $parishcode)->get();
+     if ($tithe) {
+      return response()->json([
+       'status'  => 200,
+       'message' => $parishcode . ' Record fetched successfully',
+       'tithe '  => $tithe,
+      ], 200);
+     } else {
+      return response()->json([
+       'status'  => 404,
+       'message' => 'User not found',
+      ], 404);
+     }
+
+    }
+
+
+    public function UpdateTithe(Request $request, String $UserId)
+    {
 
 
 
+        $validator = Validator::make($request->all(), [
+            //validator used in input data(tithe)-copy and paste
+      //'UserId'       => 'required|string|max:191',
+      'pymtdate' => 'required|string|max:191',
+      'Amount'   => 'required|string|max:191',
+      'pymtImg'  => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+      //'sname' => 'required|string|max:191',
+      //'fname' => 'required|string|max:191',
+      //'mname' => 'required|string|max:191',
+      //'parishcode'  =>'required|string|max:191',
+      //'parishname' =>'required|string|max:191',
+
+      // we dont have to add userId bc we will generate it ourselve
+        ]);
 
 
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'error' => $validator->messages(),
+            ], 422);
+
+        } else {
+
+            if ($request->hasFile('pymtImg')) {
+                $file = $request->file('pymtImg');
+                $pymtImg =  $request->pymtdate.''. $UserId .'.'. $file->getClientOriginalExtension();
+                $pymtImgPath = $file->storeAs('pymtImgs', $pymtImg, 'public');
+            } else {
+                $pymtImgPath = null; // Or provide a default image path
+            }
+
+            $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+            $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+            $tithe = validator($request->all());
+
+            $tithe = tithe::where('UserId', '=', $UserId)->first();
+
+            if ($tithe) {
+                    $tithe->update([
+                        //'UserId'       => $request->UserId,
+                        //'sname'  =>$request->sname,
+                        //'fname'  =>$request->fname,
+                        //'mname'  =>$request->mname,
+                        'pymtdate' => $request->pymtdate,
+                        'Amount'   => $request->Amount,
+                        //'parishcode'     =>$request->pariscode,
+                        //'parishname'        =>$request->parisname,
+                        'pymtImg'   => $pymtImgPath,
+                    ]);
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Tithe information updated Sucessfully !',
+                        'tithe'=> $tithe,
+                    ],200);
+
+            } else {
+
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Update failed as user is not found',
+                    ], 200);
+
+            }
+        }
+
+    }
+
+
+    public function DeleteTithe($UserId){
+
+        $tithe = tithe::where('UserId', '=', $UserId)->first();
+        if ($tithe) {
+
+            $tithe->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'tithe deleted  successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User/tithe not found',
+            ], 404);
+        }
+
+
+    }
+
+
+    public function AddNewJuvelineHarvest(Request $request)
+    {
+
+     $validator = Validator::make($request->all(), [
+      //validator used in input data(Add New Parish)-copy and paste
+      'UserId'       => 'required|string|max:191',
+      'pymtdate' => 'required|string|max:191',
+      'Amount'   => 'required|string|max:191',
+      'pymtImg'    => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+      // we dont have to add picode bc we will generate it ourselve
+     ]);
+
+       if ($validator->fails()) {
+      return response()->json([
+       'status' => 422,
+       'error'  => $validator->messages(),
+      ], 422);
+
+     } else {
+
+         $member = member::where('UserId',$request->UserId)->get();
+
+      if ($request->hasFile('pymtImg')) {
+
+       $fileUploaded = $request->file('pymtImg');
+       $jhpaymentImg  = $request->pymtdate.''. $request->UserId . '.' . $fileUploaded->getClientOriginalExtension();
+       $pymtImgPath = $fileUploaded->storeAs('jharvestpymtImgs', $jhpaymentImg, 'public');
+      } else {
+       $pymtImgPath = ""; // Or provide a default image path
+      }
+        if(!$member){
+            return response()->json([
+                'status' => 500,
+                'message' => 'Member does not exist',
+            ], 200);
+        }else{
+
+        $Surname=$member[0]['sname'];
+        $FirstName=$member[0]['fname'];
+        $MiddleName=$member[0]['mname'];
+        $pariscode=$member[0]['parishcode'];
+        $parisname=$member[0]['parishname'];
+
+
+            $juvelineharvest = juvelineharvest::create([
+            'UserId'       => $request->UserId,
+            'FullName'     =>$Surname.' '.$FirstName.' '.$MiddleName,
+            'pymtdate' => $request->pymtdate,
+            'Amount'   => $request->Amount,
+            'parishcode'     =>$pariscode,
+            'parishname'        =>$parisname,
+            'pymtImg'   => $pymtImgPath,
+            ]);
+
+
+
+        }
+
+        if ($juvelineharvest) {
+
+        return response()->json([
+            'status'  => 200,
+            'message' => ' juvelineharvest paid sucessfully',
+            'juvelineharvest'=> $juvelineharvest,
+        ], 200);
+        } else {
+
+        return response()->json([
+            'status'  => 500,
+            'message' => 'Something went wrong '  . ' juvelineharvest not created',
+        ], 200);
+        }
+
+    }
+    }
 
 
 
