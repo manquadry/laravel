@@ -316,7 +316,7 @@ class MemberController extends Controller
 
      $validator = Validator::make($request->all(), [
       //validator used in input data(Add New Parish)-copy and paste
-      //'UserId'       => 'required|string|max:191',
+      'UserId'       => 'required|string|max:191',
       'pymtdate' => 'required|string|max:191',
       'Amount'   => 'required|string|max:191',
       'pymtImg'    => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
