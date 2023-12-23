@@ -75,14 +75,27 @@ Route::post('/Addmember',[MemberController::class,'Addmember']);
 
 
     Route::post('Addmember',[MemberController::class,'Addmember']);
+
+    // Tithe
     Route::post('AddNewTithe',[MemberController::class,'AddNewTithe']);
-    Route::get('MTithe/{userid}',[MemberController::class,'GetATithe']);
+    Route::get('Tithe/{userid}',[MemberController::class,'GetATithe']);
     Route::get('MParishTithe/{parishcode}',[MemberController::class,'GetAllParishTithe']);
     Route::post('Tithe/{userid}/update',[MemberController::class,'UpdateTithe']);
     Route::delete('MDelete/{userid}/delete',[MemberController::class,'DeleteTithe']);
 
 //Juveline Harvest API
 Route::post('AddNewJHarvest',[MemberController::class,'AddNewJuvelineHarvest']);
+Route::get('MJuveline/{parishcode}',[MemberController::class,'GetAllParishJuvelineDue']);
+Route::get('Juveline/{userid}',[MemberController::class,'GetAJuvelineDue']);
+Route::post('Juveline/{userid}/update',[MemberController::class,'UpdateJuvelineDue']);
+Route::delete('MJuvelineDelete/{userid}/delete',[MemberController::class,'DeleteJuvelineDue']);
+
+//Adult Harvest API
+Route::post('AddNewAdultHarvest',[MemberController::class,'AddNewAdultHarvest']);
+Route::get('MAdultHarvest/{parishcode}',[MemberController::class,'GetAllParishAdultDue']);
+Route::get('Adult/{userid}',[MemberController::class,'GetAAdultDue']);
+Route::post('Adult/{userid}/update',[MemberController::class,'UpdateAdultDue']);
+Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdultDue']);
 
 // Route::put('member/{userid}/update',[MemberController::class,'updateMember']);
 // Route::delete('member/{userid}/delete',[MemberController::class,'deleteMember']);
@@ -166,6 +179,19 @@ Route::post('AddNewJHarvest',[MemberController::class,'AddNewJuvelineHarvest']);
     Route::post('updateEvent/{EventId}/update',[adminController::class,'updateEvent']);
     Route::delete('DeleteEvent/{EventId}/delete',[adminController::class,'DeleteEvent']);
 
+    // VINEYARD END POINT
+    Route::post('AddVineyard',[adminController::class,'AddNewVineyard']);
+    Route::get('AllVineyard',[adminController::class,'FetchAllVineyard']);
+    //Route::get('Vineyard/{Id}',[adminController::class,'GetAnEvent']);
+    Route::post('updateVineyard/{Id}/update',[adminController::class,'updateVineyard']);
+    Route::delete('DeleteVineyard/{Id}/delete',[adminController::class,'DeleteVineyard']);
+
+     // MINISTRY END POINT
+     Route::post('AddMinistry',[adminController::class,'AddNewMinistry']);
+     Route::get('AllMinistry',[adminController::class,'FetchAllMinistry']);
+     //Route::get('Vineyard/{Id}',[adminController::class,'GetAnEvent']);
+     Route::post('updateMinistry/{Id}/update',[adminController::class,'updateMinistry']);
+     Route::delete('DeleteMinistry/{Id}/delete',[adminController::class,'DeleteMinistry']);
 
 
 

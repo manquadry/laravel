@@ -574,9 +574,6 @@ class MemberController extends Controller
             'parishname'        =>$parisname,
             'pymtImg'   => $pymtImgPath,
             ]);
-
-
-
         }
 
         if ($juvelineharvest) {
@@ -597,12 +594,133 @@ class MemberController extends Controller
     }
     }
 
+    public function GetAllParishJuvelineDue($parishcode)
+    {
+     $juvelineharvest = juvelineharvest::where('parishcode', '=', $parishcode)->get();
+     if ($juvelineharvest) {
+      return response()->json([
+       'status'  => 200,
+       'message' => $parishcode . ' Record fetched successfully',
+       'juvelineharvest '  => $juvelineharvest,
+      ], 200);
+     } else {
+      return response()->json([
+       'status'  => 404,
+       'message' => 'User not found',
+      ], 404);
+     }
+
+    }
+
+    public function GetAJuvelineDue($UserId)
+    {
+     $juvelineharvest = juvelineharvest::where('UserId', '=', $UserId)->first();
+     if ($juvelineharvest) {
+      return response()->json([
+       'status'  => 200,
+       'message' => $UserId . ' Record fetched successfully',
+       'juvelineharvest '  => $juvelineharvest,
+      ], 200);
+     } else {
+      return response()->json([
+       'status'  => 404,
+       'message' => 'User not found',
+      ], 404);
+     }
+
+    }
 
 
+    public function UpdateJuvelineDue(Request $request, String $UserId)
+    {
+
+        $validator = Validator::make($request->all(), [
+            //validator used in input data(tithe)-copy and paste
+      //'UserId'       => 'required|string|max:191',
+      'pymtdate' => 'required|string|max:191',
+      'Amount'   => 'required|string|max:191',
+      'pymtImg'  => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+      //'sname' => 'required|string|max:191',
+      //'fname' => 'required|string|max:191',
+      //'mname' => 'required|string|max:191',
+      //'parishcode'  =>'required|string|max:191',
+      //'parishname' =>'required|string|max:191',
+
+      // we dont have to add userId bc we will generate it ourselve
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'error' => $validator->messages(),
+            ], 422);
+
+        } else {
+
+            if ($request->hasFile('pymtImg')) {
+                $file = $request->file('pymtImg');
+                $jhpaymentImg =  $request->pymtdate.''. $UserId .'.'. $file->getClientOriginalExtension();
+                $jhpaymentImgPath = $file->storeAs('jhpaymentImgs', $jhpaymentImg, 'public');
+            } else {
+                $jhpaymentImgPath = null; // Or provide a default image path
+            }
+
+            $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
+            $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
+
+            $juvelineharvest = validator($request->all());
+
+            $juvelineharvest = juvelineharvest::where('UserId', '=', $UserId)->first();
+
+            if ($juvelineharvest) {
+                    $juvelineharvest->update([
+                        //'UserId'       => $request->UserId,
+                        //'sname'  =>$request->sname,
+                        //'fname'  =>$request->fname,
+                        //'mname'  =>$request->mname,
+                        'pymtdate' => $request->pymtdate,
+                        'Amount'   => $request->Amount,
+                        //'parishcode'     =>$request->pariscode,
+                        //'parishname'        =>$request->parisname,
+                        'pymtImg'   => $jhpaymentImgPath,
+                    ]);
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'juvelineharvest information updated Sucessfully !',
+                        'juvelineharvest'=> $juvelineharvest,
+                    ],200);
+
+            } else {
+
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Update failed as user is not found',
+                    ], 200);
+
+            }
+        }
+
+    }
+
+    public function DeleteJuvelineDue($UserId){
+
+        $juvelineharvest = juvelineharvest::where('UserId', '=', $UserId)->first();
+        if ($juvelineharvest) {
+
+            $juvelineharvest->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'juvelineharvest deleted  successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User/juvelineharvest not found',
+            ], 404);
+        }
 
 
-
-
+    }
     // public function logout()
     // {
     //     Auth::user()->currentAccessToken()->delete();

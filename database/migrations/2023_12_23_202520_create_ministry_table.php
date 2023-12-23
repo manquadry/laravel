@@ -11,15 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('juvelineharvest', function (Blueprint $table) {
+        Schema::create('ministry', function (Blueprint $table) {
             $table->id();
-            $table->string('UserId');
-            $table->string('FullName');
-            $table->string('pymtdate');
-            $table->string('Amount');
-            $table->string('parishcode');
-            $table->string('parishname');
-            $table->string('pymtImg');
+            $table->string('ministry');
             $table->timestamps();
         });
     }
@@ -29,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('juvelineharvest');
+        Schema::dropIfExists('ministry');
     }
 };

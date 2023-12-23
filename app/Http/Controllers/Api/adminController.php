@@ -12,6 +12,8 @@ use App\Models\parish;
 use App\Models\province;
 use App\Models\state;
 use App\Models\title;
+use App\Models\vineyard;
+use App\Models\ministry;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait\original;
 use Illuminate\Support\Facades\Validator;
@@ -1770,5 +1772,259 @@ class adminController extends Controller
   }
 
  }
+
+ public function AddNewVineyard(Request $request)
+ {
+
+  $validator = Validator::make($request->all(), [
+   //validator used in input data(Add New Parish)-copy and paste
+    'vineyard' => 'required|string|max:191',
+
+  ]);
+
+    if ($validator->fails()) {
+   return response()->json([
+    'status' => 422,
+    'error'  => $validator->messages(),
+   ], 422);
+
+  } else {
+
+      $vineyard = vineyard::where('vineyard',$request->vineyard)->get();
+
+
+     if(!$vineyard){
+         return response()->json([
+             'status' => 500,
+             'message' => 'vineyard does not exist',
+         ], 200);
+     }else{
+
+         $vineyard = vineyard::create([
+         'vineyard'       => $request->vineyard,
+
+         ]);
+     }
+
+     if ($vineyard) {
+
+     return response()->json([
+         'status'  => 200,
+         'message' => $request->vineyard .' post sucessfully created',
+         'vineyard'=> $vineyard,
+     ], 200);
+     } else {
+
+     return response()->json([
+         'status'  => 500,
+         'message' => 'Something went wrong '  .$request->vineyard .'  not created',
+     ], 200);
+     }
+
+ }
+ }
+
+ public function FetchAllVineyard()
+ {
+  $allvineyard = vineyard::all();
+  if ($allvineyard->count() > 0) {
+   return response()->json([
+    'status'  => 200,
+    'message' => 'Record fetched successfully',
+    'vineyard ' => $allvineyard,
+   ], 200);
+  } else {
+   return response()->json([
+    'status'   => 404,
+    'message ' => 'No Vineyard records found!',
+   ], 200);
+  }
+
+ }
+
+ public function updateVineyard(Request $request, String $vineyardid)
+ {
+  $validator = Validator::make($request->all(), [
+   //validator used in input data(Add New Event)-copy and paste
+   'vineyard'       => 'required|string|max:191',
+
+  ]);
+
+  if ($validator->fails()) {
+   return response()->json([
+    'status' => 422,
+    'error'  => $validator->messages(),
+   ], 422);
+
+  }
+    $vineyard = vineyard::where('Id', '=', $vineyardid)->first();
+
+   if ($vineyard) {
+    $vineyard->update([
+     'vineyard' => $request->vineyard,
+
+    ]);
+    return response()->json([
+     'status'  => 200,
+     'message' =>' Vineyard information updated Sucessfully !',
+     'vineyard'=> $vineyard,
+    ], 200);
+
+   } else {
+
+    return response()->json([
+     'status'  => 500,
+     'message' => 'Update failed as Vineyard is not found',
+    ], 200);
+
+   }
+  }
+
+  public function DeleteVineyard($VineyardId)
+  {
+
+   $vineyard = vineyard::where('Id', '=', $VineyardId)->first();
+   if ($vineyard) {
+
+    $vineyard->delete();
+    return response()->json([
+     'status'  => 200,
+     'message' => 'deleted  successfully',
+    ], 200);
+   } else {
+    return response()->json([
+     'status'  => 404,
+     'message' => $vineyard.  'not found',
+    ], 404);
+   }
+
+  }
+
+  public function AddNewMinistry(Request $request)
+ {
+
+  $validator = Validator::make($request->all(), [
+   //validator used in input data(Add New Parish)-copy and paste
+    'ministry' => 'required|string|max:191',
+
+  ]);
+
+    if ($validator->fails()) {
+   return response()->json([
+    'status' => 422,
+    'error'  => $validator->messages(),
+   ], 422);
+
+  } else {
+
+      $ministry = ministry::where('ministry',$request->ministry)->get();
+
+
+     if(!$ministry){
+         return response()->json([
+             'status' => 500,
+             'message' => 'vineyard does not exist',
+         ], 200);
+     }else{
+
+         $ministry = ministry::create([
+         'ministry' => $request->ministry,
+
+         ]);
+     }
+
+     if ($ministry) {
+
+     return response()->json([
+         'status'  => 200,
+         'message' => $request->ministry .' post sucessfully created',
+         'vineyard'=> $ministry,
+     ], 200);
+     } else {
+
+     return response()->json([
+         'status'  => 500,
+         'message' => 'Something went wrong '  .$request->ministry .'  not created',
+     ], 200);
+     }
+
+ }
+ }
+
+ public function FetchAllMinistry()
+ {
+  $allministry = ministry::all();
+  if ($allministry->count() > 0) {
+   return response()->json([
+    'status'  => 200,
+    'message' => 'Record fetched successfully',
+    'ministry ' => $allministry,
+   ], 200);
+  } else {
+   return response()->json([
+    'status'   => 404,
+    'message ' => 'No ministry records found!',
+   ], 200);
+  }
+
+ }
+
+ public function updateMinistry(Request $request, String $ministryId)
+ {
+  $validator = Validator::make($request->all(), [
+   //validator used in input data(Add New Event)-copy and paste
+   'ministry'       => 'required|string|max:191',
+
+  ]);
+
+  if ($validator->fails()) {
+   return response()->json([
+    'status' => 422,
+    'error'  => $validator->messages(),
+   ], 422);
+
+  }
+    $ministry = ministry::where('Id', '=', $ministryId)->first();
+
+   if ($ministry) {
+    $ministry->update([
+     'ministry' => $request->ministry,
+
+    ]);
+    return response()->json([
+     'status'  => 200,
+     'message' => ' ministry information updated Sucessfully !',
+     'ministry'=> $ministry,
+    ], 200);
+
+   } else {
+
+    return response()->json([
+     'status'  => 500,
+     'message' => 'Update failed as ministry is not found',
+    ], 200);
+
+   }
+  }
+
+  public function DeleteMinistry($ministryId)
+  {
+
+   $ministry = ministry::where('Id', '=', $ministryId)->first();
+   if ($ministry) {
+
+    $ministry->delete();
+    return response()->json([
+     'status'  => 200,
+     'message' => 'Ministry deleted  successfully',
+    ], 200);
+   } else {
+    return response()->json([
+     'status'  => 404,
+     'message' => $ministry.  'not found',
+    ], 404);
+   }
+
+  }
 
 }
