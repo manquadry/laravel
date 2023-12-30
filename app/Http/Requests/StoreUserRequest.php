@@ -32,7 +32,7 @@ class StoreUserRequest extends FormRequest
             'password' => 'required|string|max:191',
             'sname' => 'required|string|max:191',
             'fname' => 'required|string|max:191',
-            'mname' => 'required|string|max:191',
+            // 'mname' => 'required|string|max:191',
             'Gender' => 'required|string|max:191',
             'dob' => 'required|string|max:191',
             'mobile' => 'required|string|max:191',
