@@ -134,6 +134,7 @@ class MemberController extends Controller
             'thumbnail' => $memberNewPic,
             'parishcode' => $request->parishcode,
             'parishname'=> $parishNames,
+            'role'=>'Client',
         ]);
 
 

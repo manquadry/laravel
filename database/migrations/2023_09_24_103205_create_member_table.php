@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('thumbnail');
             $table->string('parishcode');
             $table->string('parishname');
+            $table->string('role');
             $table->timestamps();
         });
     }

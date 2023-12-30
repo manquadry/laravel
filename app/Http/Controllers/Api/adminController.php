@@ -14,6 +14,7 @@ use App\Models\state;
 use App\Models\title;
 use App\Models\vineyard;
 use App\Models\ministry;
+use App\Models\visitor;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait\original;
 use Illuminate\Support\Facades\Validator;
@@ -2026,5 +2027,64 @@ class adminController extends Controller
    }
 
   }
+
+  public function AddNewVisitor(Request $request)
+ {
+
+  $validator = Validator::make($request->all(), [
+   //validator used in input data(Add New Parish)-copy and paste
+    'email' => 'required|string|max:191',
+        'sname'  => 'required|string|max:191',
+        'fname'  => 'required|string|max:191',
+        'mname'  => 'required|string|max:191',
+        'Gender'  => 'required|string|max:191',
+        'mobile'  => 'required|string|max:191',
+        'whatsapp' => 'required|string|max:191',
+        'Residence' => 'required|string|max:191',
+
+  ]);
+
+    if ($validator->fails()) {
+   return response()->json([
+    'status' => 422,
+    'error'  => $validator->messages(),
+   ], 422);
+
+  } else {
+
+      $visitor = visitor::where('visitor',$request->visitor)->get();
+
+
+     if(!$visitor){
+         return response()->json([
+             'status' => 500,
+             'message' => 'visitor does not exist',
+         ], 200);
+     }else{
+
+         $visitor = visitor::create([
+         'visitor'       => $request->visitor,
+
+         ]);
+     }
+
+     if ($visitor) {
+
+     return response()->json([
+         'status'  => 200,
+         'message' => $request->visitor .' sucessfully created',
+         'visitor'=> $visitor,
+     ], 200);
+     } else {
+
+     return response()->json([
+         'status'  => 500,
+         'message' => 'Something went wrong '  .$request->visitor .'  not created',
+     ], 200);
+     }
+
+ }
+ }
+
 
 }

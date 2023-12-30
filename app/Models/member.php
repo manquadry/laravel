@@ -36,9 +36,10 @@ class member extends Model
         'ministry',
         'Status',
         'thumbnail',
-        'regdate', 
+        'regdate',
         'parishcode',
         'parishname',
+        'role',
     ];
 
 
@@ -47,22 +48,22 @@ class member extends Model
         return $this->hasMany(children::class, 'ParentId', 'UserId');
     }
 }
-  
 
 
 
 
 
 
-  
- 
-    
- 
 
-  
-   
 
-  
-    
- 
-    
+
+
+
+
+
+
+
+
+
+
+
