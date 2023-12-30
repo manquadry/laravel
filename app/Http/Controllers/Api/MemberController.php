@@ -32,34 +32,108 @@ class MemberController extends Controller
 
 
 
+    // public function login(LoginRequest $request){
+
+
+    //     $member  = member::where('email', '=', $request->email)->first();
+
+
+    //     if(!$member ){
+
+    //         return $this->error(''," Email address not found! Kindly registered as a member to login ",200);
+    //     }else{
+
+    //     if ($member && Hash::check($request['password'], $member->password)) {
+    //         return $this->success([
+    //             $member ,
+    //             'Member Login Sucessfully',
+    //             'token'=>$member->createToken('API Token of '.$member ->email)->plainTextToken
+    //         ]);
+
+    //     }else{
+
+    //         return response()->json([
+    //             'status' => 500,
+    //             'message' => 'Something went wrong',
+    //         ], 200);
+    //     }
+    //     }
+
+
+    // }
+
+
     public function login(LoginRequest $request){
 
 
         $member  = member::where('email', '=', $request->email)->first();
+        if (!$member) {
+            return $this->error('',
+            "Email address not found! Kindly register as a member to login",
+            200);
+        } else {
+            if ($member && Hash::check($request['password'], $member->password)) {
 
+                if( $member['role']==='Client'){
 
-        if(!$member ){
+                $response = [
+                    'userAbilities' => [
+                        [
+                            'action' => 'read',
+                            'subject' => 'Auth',
+                        ],
+                        [
+                            'action' => 'read',
+                            'subject' => 'AclDemo',
+                        ],
+                        // ... add other abilities as needed
+                    ],
+                    'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
+                    'userData' => [
+                        $member
+                        // 'id' => $member->id,
+                        // 'fullName' => $member->sname, // Adjust the attribute names accordingly
+                        // 'username' => $member->username,
+                        // 'avatar' => $member->thumbnail,
+                        // 'email' => $member->email,
+                        // 'role' => $member->role,
+                        // ... add other user data as needed
+                    ],
+                ];
+            }else {
+                $response = [
+                    'userAbilities' => [
+                        [
+                            'action' => 'manage',
+                            'subject' => 'all',
+                        ],
+                        // ... add other abilities as needed
+                    ],
+                    'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
+                    'userData' => [
+                        $member
+                        // 'id' => $member->id,
+                        // 'fullName' => $member->sname, // Adjust the attribute names accordingly
+                        // 'username' => $member->username,
+                        // 'avatar' => $member->thumbnail,
+                        // 'email' => $member->email,
+                        // 'role' => $member->role,
+                        // ... add other user data as needed
+                    ],
+                ];
+            }
+                return response()->json($response);
+            } else {
+                $response = [
+                    'status' => 'false', // or 'error' based on your preference
+                    'message' => 'Invalid credentials',
+                ];
 
-            return $this->error(''," Email address not found! Kindly registered as a member to login ",200);
-        }else{
+                return response()->json($response,
+                401);
+            }
 
-        if ($member && Hash::check($request['password'], $member->password)) {
-            return $this->success([
-                $member ,
-                'Member Login Sucessfully',
-                'token'=>$member->createToken('API Token of '.$member ->email)->plainTextToken
-            ]);
-
-        }else{
-
-            return response()->json([
-                'status' => 500,
-                'message' => 'Something went wrong',
-            ], 200);
         }
-        }
-
-
     }
 
 
