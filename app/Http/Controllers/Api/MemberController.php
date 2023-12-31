@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\juvelineharvest;
 use App\Models\tithe;
 use App\Models\member;
 use Illuminate\Http\Request;
 use App\Traits\HttpResponses;
+use App\Models\juvelineharvest;
 use Illuminate\Http\JsonResponse;
 // use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
@@ -20,6 +20,8 @@ use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\ResponseTrait\original;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 
 
@@ -74,54 +76,58 @@ class MemberController extends Controller
         } else {
             if ($member && Hash::check($request['password'], $member->password)) {
 
+                $thumbnailPath =Storage::url($member->thumbnail);
+                 $thumnailPublicpath = URL::to($thumbnailPath);
+
+
                 if( $member['role']==='Client'){
 
-                $response = [
-                    'userAbilities' => [
-                        [
-                            'action' => 'read',
-                            'subject' => 'Auth',
+                    $response = [
+                        'userAbilities' => [
+                            [
+                                'action' => 'read',
+                                'subject' => 'Auth',
+                            ],
+                            [
+                                'action' => 'read',
+                                'subject' => 'AclDemo',
+                            ],
+                            // ... add other abilities as needed
                         ],
-                        [
-                            'action' => 'read',
-                            'subject' => 'AclDemo',
+                        'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
+                        'userData' => [
+                            // $member
+                            'id' => $member->id,
+                            'fullName' => $member->sname, // Adjust the attribute names accordingly
+                            'username' => $member->username,
+                            'avatar' =>$thumnailPublicpath,
+                            'email' => $member->email,
+                            'role' => $member->role,
+                            // ... add other user data as needed
                         ],
-                        // ... add other abilities as needed
-                    ],
-                    'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
-                    'userData' => [
-                        $member
-                        // 'id' => $member->id,
-                        // 'fullName' => $member->sname, // Adjust the attribute names accordingly
-                        // 'username' => $member->username,
-                        // 'avatar' => $member->thumbnail,
-                        // 'email' => $member->email,
-                        // 'role' => $member->role,
-                        // ... add other user data as needed
-                    ],
-                ];
-            }else {
-                $response = [
-                    'userAbilities' => [
-                        [
-                            'action' => 'manage',
-                            'subject' => 'all',
+                    ];
+                }else {
+                    $response = [
+                        'userAbilities' => [
+                            [
+                                'action' => 'manage',
+                                'subject' => 'all',
+                            ],
+                            // ... add other abilities as needed
                         ],
-                        // ... add other abilities as needed
-                    ],
-                    'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
-                    'userData' => [
-                        $member
-                        // 'id' => $member->id,
-                        // 'fullName' => $member->sname, // Adjust the attribute names accordingly
-                        // 'username' => $member->username,
-                        // 'avatar' => $member->thumbnail,
-                        // 'email' => $member->email,
-                        // 'role' => $member->role,
-                        // ... add other user data as needed
-                    ],
-                ];
-            }
+                        'accessToken' => $member->createToken('API Token of ' . $member->email)->plainTextToken,
+                        'userData' => [
+                            // $member
+                            'id' => $member->id,
+                            'fullName' => $member->sname .' '. $member->fname, // Adjust the attribute names accordingly
+                            'username' => $member->username,
+                            'avatar' => $member->$thumnailPublicpath,
+                            'email' => $member->email,
+                            'role' => $member->role,
+                            // ... add other user data as needed
+                        ],
+                    ];
+                }
                 return response()->json($response);
             } else {
                 $response = [
@@ -158,7 +164,7 @@ class MemberController extends Controller
         $member = validator($request->all());
         $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
 
-        $userAgent = $request->header('User-Agent');
+        // $userAgent = $request->header('User-Agent');
 
 
 
@@ -178,12 +184,17 @@ class MemberController extends Controller
 
             $fileUploaded = $request->file('thumbnail');
             $memberNewPic = $request->parishcode.$num_padded.'.'. $fileUploaded->getClientOriginalExtension();
+
+
             $thumbnailPath = $fileUploaded->storeAs('thumbnails', $memberNewPic, 'public');
+
+               // Store new profile image
+
+
+            // $baseUrl = config('app.url') . '/laravel/storage/app/public/'. $thumbnailPath;
         } else {
             $thumbnailPath = ""; // Or provide a default image path
         }
-
-
 
         $member = member::create([
             'UserId' => $request->parishcode. $num_padded,
@@ -205,7 +216,7 @@ class MemberController extends Controller
             'MStatus' => $request->MStatus,
             'ministry' => $request->ministry,
             'Status' => $request->Status,
-            'thumbnail' => $memberNewPic,
+            'thumbnail' => $thumbnailPath,
             'parishcode' => $request->parishcode,
             'parishname'=> $parishNames,
             'role'=>'Client',
