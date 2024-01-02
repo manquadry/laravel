@@ -14,7 +14,7 @@ use App\Models\state;
 use App\Models\title;
 use App\Models\vineyard;
 use App\Models\ministry;
-use App\Models\visitor;
+use App\Models\visitors;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait\original;
 use Illuminate\Support\Facades\Validator;
@@ -1637,14 +1637,14 @@ class adminController extends Controller
   }
  }
 
- public function FetchAllEvent()
+ public function FetchAllVisitor()
  {
-  $allevent = event::all();
-  if ($allevent->count() > 0) {
+  $allvisitors = visitors::all();
+  if ($allvisitors->count() > 0) {
    return response()->json([
     'status'  => 200,
     'message' => 'Record fetched successfully',
-    'events ' => $allevent,
+    'events ' => $allvisitors,
    ], 200);
   } else {
    return response()->json([
@@ -1655,14 +1655,14 @@ class adminController extends Controller
 
  }
 
- public function GetAnEvent($EventId)
+ public function GetAVisiotor($VisitorId)
  {
-  $event = event::where('EventId', '=', $EventId)->first();
-  if ($event) {
+  $visitor = visitors::where('$VisitorId', '=', $VisitorId)->first();
+  if ($visitor) {
    return response()->json([
     'status'  => 200,
-    'message' => $EventId . ' Record fetched successfully',
-    'event '  => $event,
+    'message' => $VisitorId . ' Record fetched successfully',
+    'event '  => $visitor,
    ], 200);
   } else {
    return response()->json([
@@ -2033,13 +2033,12 @@ class adminController extends Controller
 
   $validator = Validator::make($request->all(), [
    //validator used in input data(Add New Parish)-copy and paste
-    'email' => 'required|string|max:191',
+        //'email' => 'required|string|max:191',
         'sname'  => 'required|string|max:191',
         'fname'  => 'required|string|max:191',
-        'mname'  => 'required|string|max:191',
         'Gender'  => 'required|string|max:191',
         'mobile'  => 'required|string|max:191',
-        'whatsapp' => 'required|string|max:191',
+        //'whatsapp' => 'required|string|max:191',
         'Residence' => 'required|string|max:191',
 
   ]);
@@ -2052,18 +2051,25 @@ class adminController extends Controller
 
   } else {
 
-      $visitor = visitor::where('visitor',$request->visitor)->get();
+      $visitor = visitors::where('mobile',$request->mobile)->get();
 
 
-     if(!$visitor){
+     if($visitor){
          return response()->json([
              'status' => 500,
-             'message' => 'visitor does not exist',
+             'message' => 'visitor  Info Already exist',
          ], 200);
      }else{
 
-         $visitor = visitor::create([
-         'visitor'       => $request->visitor,
+         $visitor = visitors::create([
+         'email' =>$request->email ,
+         'sname'  =>$request->sname,
+         'fname'  => $request->fname,
+         'Gender'  =>$request->Gender ,
+         'mobile'  =>$request->mobile,
+         'whatsapp' =>$request-> whatsapp,
+         'Residence' =>$request-> Residence,
+
 
          ]);
      }
@@ -2084,6 +2090,42 @@ class adminController extends Controller
      }
 
  }
+ }
+
+ public function FetchAllEvent()
+ {
+  $allevent = event::all();
+  if ($allevent->count() > 0) {
+   return response()->json([
+    'status'  => 200,
+    'message' => 'Record fetched successfully',
+    'events ' => $allevent,
+   ], 200);
+  } else {
+   return response()->json([
+    'status'   => 404,
+    'message ' => 'No event records found!',
+   ], 200);
+  }
+
+ }
+
+ public function GetAnEvent($EventId)
+ {
+  $event = event::where('EventId', '=', $EventId)->first();
+  if ($event) {
+   return response()->json([
+    'status'  => 200,
+    'message' => $EventId . ' Record fetched successfully',
+    'event '  => $event,
+   ], 200);
+  } else {
+   return response()->json([
+    'status'  => 404,
+    'message' => 'User not found',
+   ], 404);
+  }
+
  }
 
 
