@@ -196,7 +196,7 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
      // VISITOR END POINT
      Route::post('AddVisitor',[adminController::class,'AddNewVisitor']);
      Route::get('AllVisitor',[adminController::class,'FetchAllVisitor']);
-     Route::get('Visiotor/{Id}',[adminController::class,'GetAVisiotor']);
+     Route::get('Visitor/{Id}',[adminController::class,'GetAVisitor']);
     // Route::delete('DeleteMinistry/{Id}/delete',[adminController::class,'DeleteMinistry']);
 
 
