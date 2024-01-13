@@ -18,6 +18,10 @@ use App\Models\visitor;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait\original;
 use Illuminate\Support\Facades\Validator;
+use WisdomDiala\Countrypkg\Models\Country;
+use WisdomDiala\Countrypkg\Models\State as countrystate;
+use Illuminate\Support\Facades\URL;
+
 
 class adminController extends Controller
 {
@@ -183,7 +187,7 @@ class adminController extends Controller
 
  public function getNational($nationalcode)
  {
-// Fetch one national records and eager load their associated state records
+    // Fetch one national records and eager load their associated state records
   $nationals = National::with('state.area.province.circuit.district.parish', 'area.province.circuit.district.parish', 'province.circuit.district.parish', 'circuit.district.parish', 'district.parish', 'parish')->where('code', $nationalcode)->get();
 
   if ($nationals->count() > 0) {
@@ -570,8 +574,7 @@ class adminController extends Controller
 
  public function FetchAllarea()
  {
-
-//   $area = area::all();
+    //   $area = area::all();
   $area = area::with('province.circuit.district.parish', 'circuit.district.parish', 'district.parish', 'parish')->get();
   if ($area->count() > 0) {
    return response()->json([
@@ -1959,7 +1962,7 @@ class adminController extends Controller
    return response()->json([
     'status'  => 200,
     'message' => 'Record fetched successfully',
-    'ministry ' => $allministry,
+    'ministry' => $allministry,
    ], 200);
   } else {
    return response()->json([
@@ -2086,5 +2089,33 @@ class adminController extends Controller
  }
  }
 
+
+//get All countries for user..
+ public function fetchCountries(){
+
+    // return('All countries here');
+        // $urlpath=URL::()
+
+    $countries = Country::all();
+
+        // Modify the response data to include the flag path
+        $modifiedCountries = $countries->map(function ($country) {
+            $states = countrystate::where('country_id', $country->id)->get();
+            return [
+                'id' => $country->id,
+                'name' => $country->name,
+                'short_name' => $country->short_name,
+                'flag_img' => URL::to($country->flag_img), // Adjust this based on your actual field name
+                // Include other necessary fields
+                'states' => $states,
+            ];
+        });
+
+        return response()->json([
+            'status'  => 200,
+            'countries' => $modifiedCountries,
+        ], 200);
+
+ }
 
 }

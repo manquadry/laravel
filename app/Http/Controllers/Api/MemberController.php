@@ -77,7 +77,7 @@ class MemberController extends Controller
             if ($member && Hash::check($request['password'], $member->password)) {
 
                 $thumbnailPath =Storage::url($member->thumbnail);
-                 $thumnailPublicpath = URL::to($thumbnailPath);
+                $thumnailPublicpath = URL::to($thumbnailPath);
 
 
                 if( $member['role']==='Client'){
@@ -121,7 +121,7 @@ class MemberController extends Controller
                             'id' => $member->id,
                             'fullName' => $member->sname .' '. $member->fname, // Adjust the attribute names accordingly
                             'username' => $member->username,
-                            'avatar' => $member->$thumnailPublicpath,
+                            'avatar' => $thumnailPublicpath,
                             'email' => $member->email,
                             'role' => $member->role,
                             // ... add other user data as needed

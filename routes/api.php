@@ -200,6 +200,9 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
      Route::post('updateMinistry/{Id}/update',[adminController::class,'updateMinistry']);
      Route::delete('DeleteMinistry/{Id}/delete',[adminController::class,'DeleteMinistry']);
 
+     //get All country
+     Route::get('GetCountries',[adminController::class,'fetchCountries']);
+
 
 
 
