@@ -195,10 +195,9 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
 
      // VISITOR END POINT
      Route::post('AddVisitor',[adminController::class,'AddNewVisitor']);
-     Route::get('AllMinistry',[adminController::class,'FetchAllMinistry']);
-     //Route::get('Vineyard/{Id}',[adminController::class,'GetAnEvent']);
-     Route::post('updateMinistry/{Id}/update',[adminController::class,'updateMinistry']);
-     Route::delete('DeleteMinistry/{Id}/delete',[adminController::class,'DeleteMinistry']);
+     Route::get('AllVisitor',[adminController::class,'FetchAllVisitor']);
+     Route::get('Visitor/{Id}',[adminController::class,'GetAVisitor']);
+    // Route::delete('DeleteMinistry/{Id}/delete',[adminController::class,'DeleteMinistry']);
 
      //get All country
      Route::get('GetCountries',[adminController::class,'fetchCountries']);
