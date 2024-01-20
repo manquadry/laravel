@@ -92,6 +92,26 @@ class adminController extends Controller
 
  }
 
+
+public function getTitleByGender($gender)
+{
+
+ $titles =  title::where('gender', '=', $gender)->get();
+ if ($titles) {
+  return response()->json([
+   'status'  => 200,
+   'message' =>'Record fetched successfully',
+   'titles'  => $titles,
+  ], 200);
+ } else {
+  return response()->json([
+   'status'  => 404,
+   'message' => 'User not found',
+  ], 404);
+ }
+
+}
+
  public function deleteTitle($id)
  {
 
@@ -1486,6 +1506,7 @@ class adminController extends Controller
 
  }
 
+
  public function DeleteParish($picode)
  {
 
@@ -1506,6 +1527,7 @@ class adminController extends Controller
 
  }
 
+
  public static function FetchAllParishes($parishcode = null)
  {
 
@@ -1520,13 +1542,43 @@ class adminController extends Controller
 
   ///To get a single parish
   if ($parishcode !== null) {
-   $national = national::select('email', 'phone1', 'phone2', 'country', 'states', 'city', 'address', 'nationalname as parishname', 'code as parishcode')->where('code', $parishcode);
+   $national = national::select('email', 'phone1', 'phone2', 'country', 'states', 'city', 'address', 'nationalname as parishname', 'code as parishcode')->where('states', $parishcode);
    $state    = state::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'statename as parishname', 'scode as parishcode')->orWhere('scode', $parishcode);
    $area     = area::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'areaname as parishname', 'acode as parishcode')->orWhere('acode', $parishcode);
    $province = province::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'provincename as parishname', 'pcode as parishcode')->orWhere('pcode', $parishcode);
    $circuit  = circuit::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'circuitname as parishname', 'cicode as parishcode')->orWhere('cicode', $parishcode);
    $district = district::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'districtname as parishname', 'dcode as parishcode')->orWhere('dcode', $parishcode);
    $parish   = parish::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'parishname as parishname', 'picode as parishcode')->orWhere('picode', $parishcode);
+  }
+
+  $result = $national
+   ->union($state)
+   ->union($area)
+   ->union($province)
+   ->union($circuit)
+   ->union($district)
+   ->union($parish)
+   ->get();
+
+  return response()->json([
+   'status'    => 200,
+   'message'   => 'Record fetched successfully',
+   'Allparish' => $result->toArray(),
+  ], 200);
+ }
+
+ public static function getParishByStatename($statename = null)
+ {
+
+  ///To get parish for state single parish
+  if ($statename !== null) {
+   $national = national::select('email', 'phone1', 'phone2', 'country', 'states', 'city', 'address', 'nationalname as parishname', 'code as parishcode')->where('states', $statename);
+   $state    = state::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'statename as parishname', 'scode as parishcode')->orWhere('state', $statename);
+   $area     = area::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'areaname as parishname', 'acode as parishcode')->orWhere('state', $statename);
+   $province = province::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'provincename as parishname', 'pcode as parishcode')->orWhere('state', $statename);
+   $circuit  = circuit::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'circuitname as parishname', 'cicode as parishcode')->orWhere('state', $statename);
+   $district = district::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'districtname as parishname', 'dcode as parishcode')->orWhere('state', $statename);
+   $parish   = parish::select('email', 'phone1', 'phone2', 'country', 'state', 'city', 'address', 'parishname as parishname', 'picode as parishcode')->orWhere('state', $statename);
   }
 
   $result = $national
@@ -2151,7 +2203,7 @@ class adminController extends Controller
                 'name' => $country->name,
                 'short_name' => $country->short_name,
                 'flag_img' => URL::to($country->flag_img), // Adjust this based on your actual field name
-                // Include other necessary fields
+                // // Include other necessary fields
                 'states' => $states,
             ];
         });

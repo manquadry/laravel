@@ -113,8 +113,11 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
 
     Route::get('Alltitle',[adminController::class,'FetchAlltitle']);
     Route::post('Addtitle',[adminController::class,'Addnewtitle']);
+    Route::get('getTitleByGender/{gender}',[adminController::class,'getTitleByGender']);
     Route::delete('title/{id}/delete',[adminController::class,'deleteTitle']);
     Route::put('title/{id}/update',[adminController::class,'updateTitle']);
+
+
 
 
     //National
@@ -166,6 +169,8 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
     Route::get('Parish/{picode}',[adminController::class,'GetAParish']);
     Route::put('UpdateParish/{picode}/update',[adminController::class,'UpdateParish']);
     Route::delete('DeleteParish/{picode}/delete',[adminController::class,'DeleteParish']);
+    Route::get('getParishByState/{state}',[adminController::class,'getParishByStatename']);
+
 
 
     //get all parishes or one parish
