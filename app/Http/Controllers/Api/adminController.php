@@ -2064,6 +2064,7 @@ public function getTitleByGender($gender)
    }
   }
 
+  
   public function DeleteMinistry($ministryId)
   {
 
@@ -2184,9 +2185,6 @@ public function getTitleByGender($gender)
 
  }
 
-
-
-
 //get All countries for user..
  public function fetchCountries(){
 
@@ -2214,5 +2212,47 @@ public function getTitleByGender($gender)
         ], 200);
 
  }
+
+
+ public static function sendSmsViaApp($from, $to, $body, $api_token, $append_sender, $direct_refund) {
+    $url = 'https://www.bulksmsnigeria.com/api/v2/sms';
+
+    $postData = [
+        'from' => $from,
+        'to' => $to,
+        'body' => $body,
+        'api_token' => $api_token,
+        'append_sender' => $append_sender,
+        'gateway' => $direct_refund ? 'direct-refund' : '', // Adjust as needed based on your requirements
+    ];
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => json_encode($postData),
+        CURLOPT_HTTPHEADER => array(
+            'Accept: application/json',
+            'Content-Type: application/json'
+        ),
+    ));
+
+    $response = curl_exec($curl);
+
+    if (curl_errno($curl)) {
+        echo 'Curl error: ' . curl_error($curl);
+    }
+
+    curl_close($curl);
+
+    return $response;
+}
+
 
 }

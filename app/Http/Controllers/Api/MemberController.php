@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 // use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 use App\Http\Requests\LoginRequest;
-
+use App\Http\Controllers\Api\adminController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -146,11 +146,10 @@ class MemberController extends Controller
     public function Addmember(StoreUserRequest $request)
     {
 
+        $parishname ='';
+        $fetchparish=adminController::FetchAllParishes()->original['Allparish'];
 
-
-        $fetchparish=adminController::FetchAllParishes($request->parishcode)->original['Allparish'];
-
-        if( !$fetchparish){
+        if(!$fetchparish){
 
             return response()->json([
                 'status' => 500,
@@ -158,16 +157,25 @@ class MemberController extends Controller
             ], 200);
 
 
+        }else{
+            foreach ($fetchparish as $parish) {
+                if ($parish['parishcode'] == $request->parishcode) {
+
+                        $parishname = $parish['parishname'];
+
+                    break;
+                }
+            }
         }
 
-        $parishNames =implode(', ', array_column($fetchparish, 'parishname'));
-        $member = validator($request->all());
-        $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
 
-        // $userAgent = $request->header('User-Agent');
-
-
-
+        $append_sender= $from=$parishname;
+        $body='Welcome to '. $parishname. ', We are happy to see you worship the Lord with us , God will meet you at your point of need. Amen';
+        $api_token='Bw3uqEgd4AF7c6A7Gv5BGWJTTfCP5V9psAs1xM8rGPd59eWSNqYy0QSJSJZ9';
+        $direct_refund='direct-hosted';
+        $to=$request->mobile;
+         $member = validator($request->all());
+         $ParismemberCount = member::where('parishcode',$request->parishcode)->count();
 
         if ($ParismemberCount == 0) {
             $ParismemberCount = 1;
@@ -180,18 +188,19 @@ class MemberController extends Controller
         }
 
 
+
         if ($request->hasFile('thumbnail')) {
 
             $fileUploaded = $request->file('thumbnail');
-            $memberNewPic = $request->parishcode.$num_padded.'.'. $fileUploaded->getClientOriginalExtension();
+            $memberNewPic = $request->$request->parishcode.$num_padded.'.'. $fileUploaded->getClientOriginalExtension();
 
 
             $thumbnailPath = $fileUploaded->storeAs('thumbnails', $memberNewPic, 'public');
 
-               // Store new profile image
+            //    Store new profile image
 
 
-            // $baseUrl = config('app.url') . '/laravel/storage/app/public/'. $thumbnailPath;
+            $baseUrl = config('app.url') . '/laravel/storage/app/public/'. $thumbnailPath;
         } else {
             $thumbnailPath = ""; // Or provide a default image path
         }
@@ -207,7 +216,7 @@ class MemberController extends Controller
             'dob' => $request->dob,
             'mobile' => $request->mobile,
             'Altmobile' => $request->Altmobile,
-            'Residence' => $request->Residence,
+            'Residence' => $request->address,
             'Country' => $request->Country,
             'State' => $request->State,
             'City' => $request->City,
@@ -218,21 +227,27 @@ class MemberController extends Controller
             'Status' => $request->Status,
             'thumbnail' => $thumbnailPath,
             'parishcode' => $request->parishcode,
-            'parishname'=> $parishNames,
+            'parishname'=> $parishname,
             'role'=>'Client',
         ]);
 
 
         if ($member) {
-            return $this->success([
-                $member,
+
+          $sendRegistrationSms= adminController::sendSmsViaApp($from,$to, $body, $api_token, $append_sender,$direct_refund);
+
+
+          return response()->json([
+              'data'=> $member,
+              'sms'=> $sendRegistrationSms,
                 'Member created sucessfully',
                 // 'token'=>$member->createToken('API Token of '.$member->email)->plainTextToken
             ]);
+
         } else {
             return response()->json([
                 'status' => 500,
-                'message' => 'Something went wrong',
+                'message' => 'Something went wrong user registration not sucessful',
             ], 200);
         }
 
@@ -240,25 +255,32 @@ class MemberController extends Controller
 
     }
 
-    public function FetchAllMember()
+    public function fetchAllMembers()
     {
 
         $members = member::with('children')->get();
-
-
-
+        $memberCount = $members->count();
+        $page=1;
+        $pageSize = 10;
+        $totalPages = ceil($memberCount / $pageSize);
 
         if ($members->count() > 0) {
             return response()->json([
                 'status' => 200,
                 'message' => 'Record fetched successfully',
-                'members ' => $members,
+                'users' => $members,
+                'totalUsers' => $memberCount,
+                'totalPages' => $totalPages,
+                'page' => $page,
+
             ], 200);
         } else {
             return response()->json([
                 'status' => 404,
-                'message ' => 'No records found!',
-            ], 200);
+                'message' => 'No records found!',
+                'member_count' => 0,
+                'total_pages' => 0,
+            ], 404);
         }
 
     }
