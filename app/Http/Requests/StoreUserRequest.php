@@ -26,18 +26,17 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'UserId' => 'required|string|max:191',
-            // 'email' => 'required|email|max:191',
-            'email' => 'required|email |unique:member',
-            'password' => 'required|string|max:191',
+            'email' => 'required|email|string',
+            'password' => 'required|string|min:6',
             'sname' => 'required|string|max:191',
             'fname' => 'required|string|max:191',
-            // 'mname' => 'required|string|max:191',
+            'mname' => 'required|string|max:191',
             'Gender' => 'required|string|max:191',
             'dob' => 'required|string|max:191',
+            'Status' => 'required|string|max:191',
             'mobile' => 'required|string|max:191',
             'Altmobile' => 'required|string|max:191',
-            'Residence' => 'required|string|max:191',
+            'address' => 'required|string|max:191',
             'Country' => 'required|string|max:191',
             'State' => 'required|string|max:191',
             'City' => 'required|string|max:191',
@@ -45,9 +44,8 @@ class StoreUserRequest extends FormRequest
             'dot' => 'required|string|max:191',
             'MStatus' => 'required|string|max:191',
             'ministry' => 'required|string|max:191',
-            'Status' => 'required|string|max:191',
-            // 'thumbnail' => 'required|string |max:191',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            // // 'thumbnail' => 'required|string |max:191',
+            // 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 }
