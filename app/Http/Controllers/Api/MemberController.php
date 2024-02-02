@@ -854,7 +854,7 @@ class MemberController extends Controller
         }
 
     }
-    
+
     public function DeleteJuvelineDue($UserId)
     {
 
