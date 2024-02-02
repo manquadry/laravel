@@ -29,7 +29,7 @@ Route::post('/logout',[MemberController::class,'logout']);
 
 
 //member API
-Route::get('/Allmember',[MemberController::class,'fetchAllMembers']);
+// Route::get('/Allmember',[MemberController::class,'fetchAllMembers']);
 Route::post('/Addmember',[MemberController::class,'Addmember']);
 // Route::get('/member/{userid}',[MemberController::class,'GetMember']);
 // Route::put('/member/{userid}/update',[MemberController::class,'updateMember']);
@@ -70,7 +70,7 @@ Route::post('/Addmember',[MemberController::class,'Addmember']);
     Route::get('/member/{userid}',[MemberController::class,'GetMember']);
     Route::post('/member/{userid}/update',[MemberController::class,'updateMember']);
     Route::delete('/member/{userid}/delete',[MemberController::class,'deleteMember']);
-    Route::get('Allmember',[MemberController::class,'FetchAllMember']);
+    Route::get('Allmember',[MemberController::class,'FetchAllMembers']);
    // });
 
 

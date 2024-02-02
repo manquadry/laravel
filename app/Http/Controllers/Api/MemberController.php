@@ -265,10 +265,54 @@ class MemberController extends Controller
         $totalPages = ceil($memberCount / $pageSize);
 
         if ($members->count() > 0) {
+
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Record fetched successfully',
-                'users' => $members,
+                'usersDetails' => $members->toArray(),
+                'users' => array_map(function ($member) {
+                    if(empty($member['thumbnail'])){
+                        $thumnailPublicpath=' ';
+                    }else{
+
+                        $thumbnailPath =Storage::url($member['thumbnail']);
+                        $thumnailPublicpath = URL::to($thumbnailPath);
+                    }
+                    return [
+                        'id' => $member['id'],
+                        'fullName' => $member['sname'].' '.$member['fname'], // Adjust the attribute names accordingly
+                        'gender' => $member['Gender'],
+                        'avatar' => $thumnailPublicpath,
+                        'email' => $member['email'],
+                        'mobile' => $member['mobile'],
+                        'role' => $member['role'],
+                        // Add other user data as needed
+                    ];
+                }, $members->toArray()),
+
+                // 'users' => $members,
+                // 'usersDetails' => array_map(function ($member) {
+                //     return [
+                //         'id' => $member->id,
+                //         'fullName' => $member->fullName, // Adjust the attribute names accordingly
+                //         'username' => $member->username,
+                //         'avatar' => $member->avatarPublicPath,
+                //         'email' => $member->email,
+                //         'role' => $member->role,
+                //         // Add other user data as needed
+                //     ];
+                // }, $members),
+                // 'users' => [
+                //     // $member
+                //     'id' => $members->id,
+                //     // 'fullName' => $fullName, // Adjust the attribute names accordingly
+                //     // 'username' => $members->username,
+                //     'avatar' =>$thumnailPublicpath,
+                //     'email' => $members->email,
+                //     'role' => $members->role,
+                //     // ... add other user data as needed
+                // ],
                 'totalUsers' => $memberCount,
                 'totalPages' => $totalPages,
                 'page' => $page,
@@ -399,6 +443,7 @@ class MemberController extends Controller
         }
 
     }
+
     public function deleteMember($UserId){
 
         $member = member::where('UserId', '=', $UserId)->first();
@@ -699,7 +744,7 @@ class MemberController extends Controller
         ], 200);
         }
 
-    }
+        }
     }
 
     public function GetAllParishJuvelineDue($parishcode)
@@ -809,8 +854,9 @@ class MemberController extends Controller
         }
 
     }
-
-    public function DeleteJuvelineDue($UserId){
+    
+    public function DeleteJuvelineDue($UserId)
+    {
 
         $juvelineharvest = juvelineharvest::where('UserId', '=', $UserId)->first();
         if ($juvelineharvest) {
@@ -829,6 +875,52 @@ class MemberController extends Controller
 
 
     }
+
+
+//     public function searchAllMembers(Request $request)
+// {
+//     $searchQuery = $request->input('q');
+
+//     $query = Member::with('children');
+
+//     // Apply search filter if a search query is provided
+//     if ($searchQuery) {
+//         $query->where(function ($subquery) use ($searchQuery) {
+//             $subquery->where('sname', 'like', '%' . $searchQuery . '%')
+//                      ->orWhere('fname', 'like', '%' . $searchQuery . '%')
+//                      ->orWhere('email', 'like', '%' . $searchQuery . '%');
+//             // Add additional columns as needed for searching
+//         });
+//     }
+
+//     $members = $query->get();
+//     $memberCount = $members->count();
+//     $page = 1;
+//     $pageSize = 10;
+//     $totalPages = ceil($memberCount / $pageSize);
+
+//     if ($members->count() > 0) {
+//         return response()->json([
+//             'status' => 200,
+//             'message' => 'Record fetched successfully',
+//             'usersDetails' => $members->toArray(),
+//             'users' => array_map(function ($member) {
+//                 // ... (your existing transformation logic)
+//             }, $members->toArray()),
+//             'totalUsers' => $memberCount,
+//             'totalPages' => $totalPages,
+//             'page' => $page,
+//         ], 200);
+//     } else {
+//         return response()->json([
+//             'status' => 404,
+//             'message' => 'No records found!',
+//             'member_count' => 0,
+//             'total_pages' => 0,
+//         ], 404);
+//     }
+// }
+
     // public function logout()
     // {
     //     Auth::user()->currentAccessToken()->delete();
