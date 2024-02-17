@@ -129,27 +129,24 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
 
     //State
     Route::get('Allstate',[adminController::class,'FetchAllState']);
-    Route::post('Addstate',[adminController::class,'AddNewState']);
+    // Route::post('Addstate',[adminController::class,'AddNewState']);
     Route::get('State/{scode}',[adminController::class,'GetAState']);
     Route::put('updatestate/{scode}/update',[adminController::class,'UpdateState']);
     Route::delete('deletestate/{scode}/delete',[adminController::class,'deleteState']);
 
     //area
-    Route::post('Addarea',[adminController::class,'AddNewArea']);
     Route::get('Allarea',[adminController::class,'FetchAllarea']);
     Route::get('Area/{acode}',[adminController::class,'GetAnArea']);
     Route::put('updatearea/{acode}/update',[adminController::class,'UpdateArea']);
     Route::delete('deletearea/{acode}/delete',[adminController::class,'deleteArea']);
 
     //province
-    Route::post('Addprovince',[adminController::class,'AddNewProvince']);
     Route::get('Allprovince',[adminController::class,'FetchAllProvince']);
     Route::get('Province/{pcode}',[adminController::class,'GetAProvince']);
     Route::put('Update/{pcode}/update',[adminController::class,'UpdateProvince']);
     Route::delete('Deleteprovince/{pcode}/delete',[adminController::class,'DeleteProvince']);
 
     //circuit
-    Route::post('Addcircuit',[adminController::class,'AddNewcircuit']);
     Route::get('Allcircuit',[adminController::class,'FetchAllCircuit']);
     Route::get('Circuit/{cicode}',[adminController::class,'GetACircuit']);
     Route::put('UpdateCicuit/{cicode}/update',[adminController::class,'UpdateCircuit']);
@@ -157,7 +154,7 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
 
 
     //District
-    Route::post('AddDistrict',[adminController::class,'AddNewDistrict']);
+    // Route::post('AddDistrict',[adminController::class,'AddNewDistrict']);
     Route::get('AllDistrict',[adminController::class,'FetchAllDistrict']);
     Route::get('District/{dcode}',[adminController::class,'GetADistrict']);
     Route::put('UpdateDistrict/{dcode}/update',[adminController::class,'UpdateDistrict']);
@@ -174,7 +171,7 @@ Route::delete('MAdultDelete/{userid}/delete',[MemberController::class,'DeleteAdu
 
 
     //get all parishes or one parish
-    Route::get('getAllParishes',[adminController::class,'FetchAllParishes']);
+    Route::get('getAllParishes',[adminController::class,'fetchAllParishes']);
     Route::get('getAParish/{parishcode}',[adminController::class,'FetchAllParishes']);
 
     // EVENT END POINT

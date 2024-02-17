@@ -15,7 +15,7 @@ class national extends Model
         'phone1',
         'phone2',
         'country',
-        'state',
+        'states',
         'city',
         'address',
         'nationalname',
@@ -27,7 +27,7 @@ class national extends Model
         return $this->hasMany(state::class, 'nationalcode', 'code');
     }
 
-   
+
 
     public function area()
     {

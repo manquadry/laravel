@@ -31,9 +31,7 @@ class MemberController extends Controller
     use HttpResponses;
 
 
-
-
-
+    
     // public function login(LoginRequest $request){
 
 
@@ -60,8 +58,6 @@ class MemberController extends Controller
     //         ], 200);
     //     }
     //     }
-
-
     // }
 
 

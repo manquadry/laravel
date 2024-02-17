@@ -34,7 +34,7 @@ class state extends Model
 
     //HasMany Start
 
-    
+
     public function area()
     {
         return $this->hasMany(area::class, 'reportingcode', 'scode');
